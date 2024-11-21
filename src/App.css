@@ -1,0 +1,75 @@
+body {
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont,
+    "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji",
+    sans-serif !important;
+}
+.MuiToolbar-root {
+  min-height: 44px !important;
+}
+
+.tasknameHeading {
+  cursor: pointer;
+  font-size: 40px;
+  font-weight: bold;
+  border: none;
+  outline: none;
+  color: #37352f;
+}
+
+.ka-table {
+  width: auto !important;
+}
+
+.ka-thead-cell {
+  padding: 0 8px !important;
+}
+
+.ka-thead-cell-height {
+  height: 34px !important;
+}
+
+.ka-row {
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+.ka-cell {
+  padding: 7px !important;
+  border-right: 1px solid #e2e8f0 !important;
+  border-top: 1px solid #e2e8f0 !important;
+  border-bottom: none !important;
+  line-height: normal !important;
+  color: #000000 !important;
+}
+
+.ka-thead-background {
+  background-color: #ffffff !important;
+}
+
+.ka-cell-text {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+}
+
+.ka {
+  border: none !important;
+  background-color: transparent !important;
+}
+.ka-row .ka-cell:last-of-type {
+  border-right: none !important;
+}
+
+/* [data-theme="dark"] */
+
+[data-theme="dark"] .ka-cell {
+  padding: 7px !important;
+  border-right: 1px solid #2f2f2f !important;
+  border-top: 1px solid #2f2f2f !important;
+  border-bottom: none !important;
+  line-height: normal !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .ka-thead-background {
+  background-color: #191919 !important;
+}

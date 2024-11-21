@@ -1,0 +1,126 @@
+
+
+
+
+*{
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+  }
+  
+  
+  
+  .notion-row {
+  transition: background-color 0.3s ease;
+  }
+  
+  .notion-row:hover {
+  background-color: #ffffff; /* Change the background color on hover */
+  }
+  
+  #popover-content{
+  
+  width: 150px;
+  }
+  
+  
+  
+  .TaskNameHeading {
+  cursor: pointer;
+  font-size: 40px;
+  font-weight: bold;
+  border: none;
+  outline: none;
+  color: #37352F ;
+  }
+  
+  
+  
+  
+  .inner-headings{
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 708px;
+  text-align: start;
+  
+  
+  }
+  
+  .table-container{
+  
+  margin-left: auto;
+  margin-right: auto;
+  }
+  
+  
+  .notion-table th,
+  .notion-table td {
+  
+    padding: 0px; /* Add padding for better spacing */
+  
+  }
+  
+  .main{
+  
+   display: flex;
+  
+    
+  }
+  
+  .table-container {
+    max-height: calc(100vh - 20px); /* Adjust the height as needed */
+    overflow-y: auto; /* Allow vertical scrolling */
+    overflow-x: auto; /* Allow horizontal scrolling */
+    position: sticky;
+    top: 0;
+  }
+  
+  /* Custom scrollbar for Chrome, Safari, and Opera */
+  .table-container::-webkit-scrollbar {
+    width: 8px; /* Width of the scrollbar */
+  }
+  
+  .table-container::-webkit-scrollbar-track {
+    background: #ffffff; /* Default track color for light mode */
+    border-radius: 10px; /* Round the track corners */
+  }
+  
+  .table-container::-webkit-scrollbar-thumb {
+    background: #888; /* Thumb color */
+    border-radius: 10px; /* Round the thumb corners */
+  }
+  
+  .table-container::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Thumb hover color */
+  }
+  
+  /* Custom scrollbar for Firefox */
+  .table-container {
+    scrollbar-width: thin; /* Thin scrollbar */
+    scrollbar-color: #888 #ffffff; /* Thumb and track color for light mode */
+  }
+  
+  /* Custom scrollbar for IE and Edge */
+  .table-container {
+    -ms-overflow-style: scrollbar; /* Display scrollbar */
+  }
+  
+  /* Theme-dependent scrollbar colors */
+  [data-theme="dark"] .table-container::-webkit-scrollbar-track {
+    background: #1a202c; /* Dark mode track color */
+  }
+  
+  [data-theme="dark"] .table-container {
+    scrollbar-color: #888 #1a202c; /* Dark mode thumb and track color */
+  }
+  
+  
+  @media screen and (max-width: 768px) {
+  
+  .headings{
+    margin-left: 56px;
+  }
+  }
+  
+  
+  
