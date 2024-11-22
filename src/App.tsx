@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { lightTheme, darkTheme } from './theme';
 import './App.css';
@@ -30,7 +30,7 @@ function App() {
       <Navbar toggleDarkMode={toggleDarkMode} darkMode={darkMode} />
       <Header />
       <div style={{ padding: '1rem' }}>
-        <KaTable darkMode={darkMode} />
+        <KaTable />
       </div>
     </ThemeProvider>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 import { AppBar, Toolbar, IconButton, Typography, TextField } from "@mui/material";
-import { Menu as MenuIcon, DarkMode as DarkModeIcon, LightMode as LightModeIcon } from "@mui/icons-material";
+import { DarkMode as DarkModeIcon, LightMode as LightModeIcon } from "@mui/icons-material";
 import DrawerNav from "./Drawer";
 
 interface NavbarProps {
