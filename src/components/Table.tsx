@@ -2,8 +2,8 @@ import { Table, useTable } from "ka-table";
 import { DataType, EditingMode } from "ka-table/enums";
 import { Column } from "ka-table/models";
 import { FaPlus } from "react-icons/fa";
-import React, { useEffect, useState } from "react";
-import { Button, Paper } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Button} from "@mui/material";
 
 const KaTable = () => {
   // Initialize columns from localStorage or with defaults
