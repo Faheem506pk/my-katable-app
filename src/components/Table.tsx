@@ -54,9 +54,8 @@ const KaTable = () => {
   const [dataArray, setDataArray] = useState(
     JSON.parse(localStorage.getItem("tableData") || "[]") || []
   );
-
+  
   const table = useTable();
-
   const [tableKey, setTableKey] = useState(0); // Track key to force table re-render
 
   useEffect(() => {
@@ -69,7 +68,6 @@ const KaTable = () => {
       style: { minWidth: 110 },
       isEditable: false,
     });
-
     localStorage.setItem("tableColumns", JSON.stringify(columnsWithAddColumn));
     localStorage.setItem("tableData", JSON.stringify(dataArray));
   }, [columns, dataArray]);
@@ -78,16 +76,14 @@ const KaTable = () => {
     const updatedColumns = columns.map((col) =>
       col.key === key ? { ...col, title: newTitle } : col
     );
-
     // Update the columns state
     setColumns(updatedColumns);
-
     // Reset the table key to force a full re-render
     setTableKey((prevKey) => prevKey + 1);
-
     // Save the updated columns to localStorage
     localStorage.setItem("tableColumns", JSON.stringify(updatedColumns));
   };
+
   const handleDeleteColumn = (columnKey: string) => {
     // Remove the column from the columns state
     const updatedColumns = columns.filter((col) => col.key !== columnKey);
@@ -110,7 +106,6 @@ const KaTable = () => {
     setTableKey((prevKey) => prevKey + 1);
   };
   
-
   const handleAddColumn = () => {
     const newColumn: Column = {
       key: `NewColumn-${columns.length + 1}`,
