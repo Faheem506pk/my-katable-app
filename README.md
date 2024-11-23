@@ -33,7 +33,7 @@ git clone https://github.com/faheem506pk/ka-table.git
 2. Navigate to the project folder:
 
 ```bash
-cd ka-table
+cd my-katable-app
 ```
 
 3. Install the project dependencies:
