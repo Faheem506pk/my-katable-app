@@ -1,14 +1,16 @@
+import { useState, useEffect } from "react";
 import { Table, useTable } from "ka-table";
 import { DataType, EditingMode } from "ka-table/enums";
 import { Column } from "ka-table/models";
 import { FaPlus } from "react-icons/fa";
-import { useEffect, useState } from "react";
 import { Button } from "@mui/material";
+import ColumnPopover from "./ColumnPopover";
 
 const KaTable = () => {
-  // Initialize columns from localStorage or with defaults
   const [columns, setColumns] = useState<Column[]>(() => {
-    const savedColumns = JSON.parse(localStorage.getItem("tableColumns") || "[]");
+    const savedColumns = JSON.parse(
+      localStorage.getItem("tableColumns") || "[]"
+    );
 
     if (!savedColumns || savedColumns.length === 0) {
       return [
@@ -33,11 +35,7 @@ const KaTable = () => {
           style: { minWidth: 199 },
           isEditable: true,
         },
-        {
-          key: "AddColumn",
-          style: { minWidth: 110 },
-          isEditable: false,
-        },
+        { key: "AddColumn", style: { minWidth: 110 }, isEditable: false },
       ];
     }
 
@@ -59,8 +57,12 @@ const KaTable = () => {
 
   const table = useTable();
 
+  const [tableKey, setTableKey] = useState(0); // Track key to force table re-render
+
   useEffect(() => {
-    const columnsWithAddColumn = columns.filter((col) => col.key !== "AddColumn");
+    const columnsWithAddColumn = columns.filter(
+      (col) => col.key !== "AddColumn"
+    );
     columnsWithAddColumn.push({
       key: "AddColumn",
       title: "Add Column",
@@ -72,16 +74,55 @@ const KaTable = () => {
     localStorage.setItem("tableData", JSON.stringify(dataArray));
   }, [columns, dataArray]);
 
+  const handleRenameColumn = (key: string, newTitle: string) => {
+    const updatedColumns = columns.map((col) =>
+      col.key === key ? { ...col, title: newTitle } : col
+    );
+
+    // Update the columns state
+    setColumns(updatedColumns);
+
+    // Reset the table key to force a full re-render
+    setTableKey((prevKey) => prevKey + 1);
+
+    // Save the updated columns to localStorage
+    localStorage.setItem("tableColumns", JSON.stringify(updatedColumns));
+  };
+  const handleDeleteColumn = (columnKey: string) => {
+    // Remove the column from the columns state
+    const updatedColumns = columns.filter((col) => col.key !== columnKey);
+  
+    // Remove the column data from each row in dataArray
+    const updatedDataArray = dataArray.map((row: { [x: string]: any; }) => {
+      const { [columnKey]: deletedColumn, ...rest } = row; // Destructure to remove the column
+      return rest;
+    });
+  
+    // Update the columns and dataArray states
+    setColumns(updatedColumns);
+    setDataArray(updatedDataArray);
+  
+    // Save updated columns and dataArray to localStorage
+    localStorage.setItem("tableColumns", JSON.stringify(updatedColumns));
+    localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
+  
+    // Trigger re-render by updating tableKey
+    setTableKey((prevKey) => prevKey + 1);
+  };
+  
+
   const handleAddColumn = () => {
     const newColumn: Column = {
       key: `NewColumn-${columns.length + 1}`,
-      title: `New Column`,
+      title: `NewColumn-${columns.length + 1}`,
       dataType: DataType.String,
       style: { minWidth: 199 },
       isEditable: true,
     };
 
-    const indexOfAddColumn = columns.findIndex((col) => col.key === "AddColumn");
+    const indexOfAddColumn = columns.findIndex(
+      (col) => col.key === "AddColumn"
+    );
     const updatedColumns = [
       ...columns.slice(0, indexOfAddColumn),
       newColumn,
@@ -104,26 +145,20 @@ const KaTable = () => {
       FatherName: "",
       DateOfBirth: "",
     };
-
     setDataArray([...dataArray, newRow]);
-  };
-
-  const initializeRows = () => {
-    const emptyRows = Array(5)
-      .fill(null)
-      .map((_, index) => ({
-        id: index,
-        Name: "",
-        FatherName: "",
-        DateOfBirth: "",
-      }));
-
-    setDataArray(emptyRows);
   };
 
   useEffect(() => {
     if (dataArray.length === 0) {
-      initializeRows();
+      const emptyRows = Array(5)
+        .fill(null)
+        .map((_, index) => ({
+          id: index,
+          Name: "",
+          FatherName: "",
+          DateOfBirth: "",
+        }));
+      setDataArray(emptyRows);
     }
   }, [dataArray]);
 
@@ -133,25 +168,26 @@ const KaTable = () => {
     </Button>
   );
 
-  // Handle cell value updates
-  const handleCellValueChange = (rowKey: any, columnKey: string, value: string) => {
-    const updatedData = dataArray.map((row: { id: any; }) =>
+  const handleCellValueChange = (
+    rowKey: any,
+    columnKey: string,
+    value: string
+  ) => {
+    const updatedData = dataArray.map((row: { id: any }) =>
       row.id === rowKey ? { ...row, [columnKey]: value } : row
     );
-    setDataArray(updatedData); // Update state
+    setDataArray(updatedData);
   };
 
   return (
     <div className="main">
       <div
-        style={{
-          overflowX: "auto",
-          marginLeft: "auto",
-          marginRight: "auto",
-        }}
+        style={{ overflowX: "auto", marginLeft: "auto", marginRight: "auto" }}
         className="table-container"
       >
+        {/* Add dynamic key to force table re-render */}
         <Table
+          key={tableKey}
           table={table}
           columns={columns}
           data={dataArray}
@@ -162,14 +198,17 @@ const KaTable = () => {
               content: (props) => {
                 const { column, rowData } = props;
 
-                // Editable cell
                 if (column.isEditable) {
                   return (
                     <input
                       type="text"
                       value={rowData[column.key] || ""}
                       onChange={(e) =>
-                        handleCellValueChange(rowData.id, column.key, e.target.value)
+                        handleCellValueChange(
+                          rowData.id,
+                          column.key,
+                          e.target.value
+                        )
                       }
                       style={{
                         width: "100%",
@@ -187,11 +226,18 @@ const KaTable = () => {
                 if (props.column.key === "AddColumn") {
                   return <AddButton />;
                 }
+                return (
+                  <ColumnPopover
+                    columnKey={props.column.key}
+                    currentTitle={props.column.title || ""}
+                    onRename={handleRenameColumn}
+                    onDelete={handleDeleteColumn}
+                  />
+                );
               },
             },
           }}
         />
-
         <div style={{ marginTop: "20px" }}>
           <Button onClick={handleAddRow}>
             <FaPlus /> Add Row
