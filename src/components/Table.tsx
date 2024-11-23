@@ -3,15 +3,13 @@ import { DataType, EditingMode } from "ka-table/enums";
 import { Column } from "ka-table/models";
 import { FaPlus } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import { Button} from "@mui/material";
+import { Button } from "@mui/material";
 
 const KaTable = () => {
   // Initialize columns from localStorage or with defaults
   const [columns, setColumns] = useState<Column[]>(() => {
-    // Load from localStorage or fallback to default
     const savedColumns = JSON.parse(localStorage.getItem("tableColumns") || "[]");
 
-    // If no saved columns, set the default columns including AddColumn
     if (!savedColumns || savedColumns.length === 0) {
       return [
         {
@@ -19,18 +17,21 @@ const KaTable = () => {
           title: "Name",
           dataType: DataType.String,
           style: { minWidth: 199 },
+          isEditable: true,
         },
         {
           key: "FatherName",
           title: "Father Name",
           dataType: DataType.String,
           style: { minWidth: 199 },
+          isEditable: true,
         },
         {
           key: "DateOfBirth",
           title: "Date Of Birth",
           dataType: DataType.String,
           style: { minWidth: 199 },
+          isEditable: true,
         },
         {
           key: "AddColumn",
@@ -40,7 +41,6 @@ const KaTable = () => {
       ];
     }
 
-    // Ensure AddColumn is included when loading from localStorage
     const columnKeys = savedColumns.map((col: Column) => col.key);
     if (!columnKeys.includes("AddColumn")) {
       savedColumns.push({
@@ -57,28 +57,21 @@ const KaTable = () => {
     JSON.parse(localStorage.getItem("tableData") || "[]") || []
   );
 
-  // KaTable hook
   const table = useTable();
 
-  // Save columns and data to localStorage when they change
   useEffect(() => {
-    // Ensure AddColumn is always present in the columns list
-    const columnsWithAddColumn = columns.filter(col => col.key !== 'AddColumn');
+    const columnsWithAddColumn = columns.filter((col) => col.key !== "AddColumn");
     columnsWithAddColumn.push({
-      key: 'AddColumn',
-      title: 'Add Column',
+      key: "AddColumn",
+      title: "Add Column",
       style: { minWidth: 110 },
       isEditable: false,
     });
 
-    // Persist columns to localStorage
     localStorage.setItem("tableColumns", JSON.stringify(columnsWithAddColumn));
-
-    // Persist data to localStorage
     localStorage.setItem("tableData", JSON.stringify(dataArray));
   }, [columns, dataArray]);
 
-  // Function to add new column before the "AddColumn"
   const handleAddColumn = () => {
     const newColumn: Column = {
       key: `NewColumn-${columns.length + 1}`,
@@ -88,8 +81,7 @@ const KaTable = () => {
       isEditable: true,
     };
 
-    // Insert the new column before the "AddColumn"
-    const indexOfAddColumn = columns.findIndex(col => col.key === 'AddColumn');
+    const indexOfAddColumn = columns.findIndex((col) => col.key === "AddColumn");
     const updatedColumns = [
       ...columns.slice(0, indexOfAddColumn),
       newColumn,
@@ -98,15 +90,13 @@ const KaTable = () => {
 
     setColumns(updatedColumns);
 
-    // Dispatch KaTable to update internal columns
     table.dispatch({
       type: "InsertColumn",
       column: newColumn,
-      index: indexOfAddColumn, // Add column at the correct index
+      index: indexOfAddColumn,
     });
   };
 
-  // Function to add new row
   const handleAddRow = () => {
     const newRow = {
       id: dataArray.length,
@@ -115,61 +105,94 @@ const KaTable = () => {
       DateOfBirth: "",
     };
 
-    const newDataArray = [...dataArray, newRow];
-    setDataArray(newDataArray); // Update state to trigger localStorage update
+    setDataArray([...dataArray, newRow]);
   };
 
-  // Function to initialize 4-5 empty rows
   const initializeRows = () => {
-    const emptyRows = Array(5).fill({
-      id: Math.random(), // Random ID to ensure uniqueness
-      Name: "",
-      FatherName: "",
-      DateOfBirth: "",
-    });
+    const emptyRows = Array(5)
+      .fill(null)
+      .map((_, index) => ({
+        id: index,
+        Name: "",
+        FatherName: "",
+        DateOfBirth: "",
+      }));
 
-    setDataArray(emptyRows); // Initialize with 5 empty rows
+    setDataArray(emptyRows);
   };
 
   useEffect(() => {
     if (dataArray.length === 0) {
-      initializeRows(); // Initialize rows when data is empty
+      initializeRows();
     }
   }, [dataArray]);
 
-  const AddButton = () => {
-    return (
-      <div>
-        <Button onClick={handleAddColumn}>
-          <FaPlus />
-        </Button>
-      </div>
+  const AddButton = () => (
+    <Button onClick={handleAddColumn}>
+      <FaPlus />
+    </Button>
+  );
+
+  // Handle cell value updates
+  const handleCellValueChange = (rowKey: any, columnKey: string, value: string) => {
+    const updatedData = dataArray.map((row: { id: any; }) =>
+      row.id === rowKey ? { ...row, [columnKey]: value } : row
     );
+    setDataArray(updatedData); // Update state
   };
 
   return (
     <div className="main">
-      <div style={{ overflowX: "auto", marginLeft: "auto", marginRight: "auto" }} className="table-container">
-        {/* Render the KaTable component */}
+      <div
+        style={{
+          overflowX: "auto",
+          marginLeft: "auto",
+          marginRight: "auto",
+        }}
+        className="table-container"
+      >
         <Table
           table={table}
-          columns={columns} // Pass the columns to KaTable
+          columns={columns}
           data={dataArray}
           rowKeyField="id"
           editingMode={EditingMode.Cell}
           childComponents={{
+            cell: {
+              content: (props) => {
+                const { column, rowData } = props;
+
+                // Editable cell
+                if (column.isEditable) {
+                  return (
+                    <input
+                      type="text"
+                      value={rowData[column.key] || ""}
+                      onChange={(e) =>
+                        handleCellValueChange(rowData.id, column.key, e.target.value)
+                      }
+                      style={{
+                        width: "100%",
+                        border: "none",
+                        background: "transparent",
+                      }}
+                    />
+                  );
+                }
+                return null;
+              },
+            },
             headCell: {
               content: (props) => {
-                if (props.column.key === 'AddColumn') {
+                if (props.column.key === "AddColumn") {
                   return <AddButton />;
                 }
-              }
-            }
+              },
+            },
           }}
         />
 
         <div style={{ marginTop: "20px" }}>
-          {/* Button to add new row */}
           <Button onClick={handleAddRow}>
             <FaPlus /> Add Row
           </Button>
