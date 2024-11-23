@@ -21,27 +21,27 @@ const KaTable = () => {
           title: "Name",
           dataType: DataType.String,
           style: { minWidth: 199 },
-          colGroup: { style: { minWidth: 199 }},
+         
           isEditable: true,
-          isResizable: true,
+          
         },
         {
           key: "FatherName",
           title: "Father Name",
           dataType: DataType.String,
-          colGroup: { style: { minWidth: 199 }},
+         
           style: { minWidth: 199 },
           isEditable: true,
-          isResizable: true,
+          
         },
         {
           key: "DateOfBirth",
           title: "Date Of Birth",
           dataType: DataType.String,
-          colGroup: { style: { minWidth: 199 }},
+          
           style: { minWidth: 199 },
           isEditable: true,
-          isResizable: true,
+          
         },
         { key: "AddColumn", style: { minWidth: 140 }, isEditable: false },
       ];
@@ -120,9 +120,7 @@ const KaTable = () => {
       title: `NewColumn-${columns.length + 1}`,
       dataType: DataType.String,
       style: { minWidth: 199 },
-      colGroup: { style: { minWidth: 199 }},
       isEditable: true,
-      isResizable: true,
     };
 
     const indexOfAddColumn = columns.findIndex(
