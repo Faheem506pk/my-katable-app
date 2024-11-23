@@ -50,6 +50,10 @@ body {
   font-size: 14px !important;
   font-weight: 600 !important;
 }
+.ka-thead-cell-resize {
+  left: 7px !important;
+  background-color: #ffffff !important;
+}
 
 .ka {
   border: none !important;
@@ -58,8 +62,18 @@ body {
 .ka-row .ka-cell:last-of-type {
   border-right: none !important;
 }
+.ka-row .ka-cell:First-of-type {
+  border-top: none !important;
+  border-right: none !important;
+}
+
 
 /* [data-theme="dark"] */
+
+[data-theme="dark"] .ka-thead-cell-resize {
+  left: 7px !important;
+  background-color: #191919 !important;
+}
 
 [data-theme="dark"] .ka-cell {
   padding: 7px !important;

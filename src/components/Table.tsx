@@ -4,6 +4,7 @@ import { DataType, EditingMode } from "ka-table/enums";
 import { Column } from "ka-table/models";
 import { FaPlus } from "react-icons/fa";
 import { Button } from "@mui/material";
+import { MdDragIndicator } from "react-icons/md";
 import ColumnPopover from "./ColumnPopover";
 
 const KaTable = () => {
@@ -14,28 +15,35 @@ const KaTable = () => {
 
     if (!savedColumns || savedColumns.length === 0) {
       return [
+        { key: "drag", width: 30, isEditable: false, title: "" },
         {
           key: "Name",
           title: "Name",
           dataType: DataType.String,
           style: { minWidth: 199 },
+          colGroup: { style: { minWidth: 199 }},
           isEditable: true,
+          isResizable: true,
         },
         {
           key: "FatherName",
           title: "Father Name",
           dataType: DataType.String,
+          colGroup: { style: { minWidth: 199 }},
           style: { minWidth: 199 },
           isEditable: true,
+          isResizable: true,
         },
         {
           key: "DateOfBirth",
           title: "Date Of Birth",
           dataType: DataType.String,
+          colGroup: { style: { minWidth: 199 }},
           style: { minWidth: 199 },
           isEditable: true,
+          isResizable: true,
         },
-        { key: "AddColumn", style: { minWidth: 110 }, isEditable: false },
+        { key: "AddColumn", style: { minWidth: 140 }, isEditable: false },
       ];
     }
 
@@ -54,7 +62,7 @@ const KaTable = () => {
   const [dataArray, setDataArray] = useState(
     JSON.parse(localStorage.getItem("tableData") || "[]") || []
   );
-  
+
   const table = useTable();
   const [tableKey, setTableKey] = useState(0); // Track key to force table re-render
 
@@ -87,32 +95,34 @@ const KaTable = () => {
   const handleDeleteColumn = (columnKey: string) => {
     // Remove the column from the columns state
     const updatedColumns = columns.filter((col) => col.key !== columnKey);
-  
+
     // Remove the column data from each row in dataArray
-    const updatedDataArray = dataArray.map((row: { [x: string]: any; }) => {
+    const updatedDataArray = dataArray.map((row: { [x: string]: any }) => {
       const { [columnKey]: deletedColumn, ...rest } = row; // Destructure to remove the column
       return rest;
     });
-  
+
     // Update the columns and dataArray states
     setColumns(updatedColumns);
     setDataArray(updatedDataArray);
-  
+
     // Save updated columns and dataArray to localStorage
     localStorage.setItem("tableColumns", JSON.stringify(updatedColumns));
     localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
-  
+
     // Trigger re-render by updating tableKey
     setTableKey((prevKey) => prevKey + 1);
   };
-  
+
   const handleAddColumn = () => {
     const newColumn: Column = {
       key: `NewColumn-${columns.length + 1}`,
       title: `NewColumn-${columns.length + 1}`,
       dataType: DataType.String,
       style: { minWidth: 199 },
+      colGroup: { style: { minWidth: 199 }},
       isEditable: true,
+      isResizable: true,
     };
 
     const indexOfAddColumn = columns.findIndex(
@@ -188,9 +198,16 @@ const KaTable = () => {
           data={dataArray}
           rowKeyField="id"
           editingMode={EditingMode.Cell}
+          columnReordering={true}
+          rowReordering={true}
+          columnResizing={true}
           childComponents={{
             cell: {
               content: (props) => {
+                switch (props.column.key) {
+                  case "drag":
+                    return <MdDragIndicator style={{ cursor: "move" }} />;
+                }
                 const { column, rowData } = props;
 
                 if (column.isEditable) {

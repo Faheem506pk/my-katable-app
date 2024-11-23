@@ -9,7 +9,7 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ toggleDarkMode, darkMode }) => {
-  const [pageName, setPageName] = React.useState(localStorage.getItem("pageName") || "qotion");
+  const [pageName, setPageName] = React.useState(localStorage.getItem("pageName") || "iotion");
   const [isEditingPageName, setIsEditingPageName] = React.useState(false);
 
   React.useEffect(() => {
