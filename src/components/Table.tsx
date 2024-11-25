@@ -25,16 +25,16 @@ const KaTable = () => {
           isEditable: true,
         },
         {
-          key: "FatherName",
-          title: "Father Name",
-          dataType: DataType.String,
+          key: "Salary",
+          title: "Salary",
+          dataType: DataType.Number,
           style: { minWidth: 199 },
           isEditable: true,
         },
         {
           key: "DateOfBirth",
           title: "Date Of Birth",
-          dataType: DataType.String,
+          dataType: DataType.Date,
           style: { minWidth: 199 },
           isEditable: true,
         },
@@ -112,6 +112,7 @@ const KaTable = () => {
     );
     setDataArray(updatedData);
   };
+  
   const handleDeleteRow = (rowData: any) => {
         const updatedDataArray = dataArray.filter((row: { id: any }) => row.id !== rowData);
     
