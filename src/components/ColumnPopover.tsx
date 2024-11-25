@@ -7,26 +7,31 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
+import { Column } from "ka-table/models";
 
-interface RenameColumnPopoverProps {
+interface ColumnPopoverProps {
   columnKey: string;
   currentTitle: string;
-  onRename: (key: string, newTitle: string) => void;
-  onDelete: (key: string) => void;
-  onSort: (key: string, order: "asc" | "desc") => void; 
+  columns: Column<any>[]; // Ensure this matches the type expected
+  setColumns: React.Dispatch<React.SetStateAction<Column<any>[]>>;
+  dataArray: any[];
+  setDataArray: React.Dispatch<React.SetStateAction<any[]>>;
+  setTableKey: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const ColumnPopover: React.FC<RenameColumnPopoverProps> = ({
+
+const ColumnPopover: React.FC<ColumnPopoverProps> = ({
   columnKey,
   currentTitle,
-  onRename,
-  onDelete,
-  onSort,
+  columns,
+  dataArray,
+  setColumns,
+  setDataArray,
+  setTableKey
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [newTitle, setNewTitle] = useState(currentTitle);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  
 
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -34,7 +39,7 @@ const ColumnPopover: React.FC<RenameColumnPopoverProps> = ({
 
   const handleClose = () => {
     if (newTitle !== currentTitle) {
-      onRename(columnKey, newTitle);
+      handleRenameColumn(columnKey, newTitle);
     }
     setAnchorEl(null);
   };
@@ -44,12 +49,51 @@ const ColumnPopover: React.FC<RenameColumnPopoverProps> = ({
   };
 
   const handleDeleteConfirm = () => {
-    onDelete(columnKey);  // Delete the column
-    setOpenDeleteDialog(false);  // Close the dialog
+    handleDeleteColumn(columnKey);
+    setOpenDeleteDialog(false);
   };
 
   const handleDeleteCancel = () => {
-    setOpenDeleteDialog(false);  // Close the dialog without deleting
+    setOpenDeleteDialog(false);
+  };
+
+  const handleRenameColumn = (key: string, newTitle: string) => {
+    const updatedColumns = columns.map((col) =>
+      col.key === key ? { ...col, title: newTitle } : col
+    );
+    setColumns(updatedColumns);
+    setTableKey((prevKey) => prevKey + 1); // Force re-render
+    localStorage.setItem("tableColumns", JSON.stringify(updatedColumns));
+  };
+
+  const handleDeleteColumn = (columnKey: string) => {
+    const updatedColumns = columns.filter((col) => col.key !== columnKey);
+    const updatedDataArray = dataArray.map((row) => {
+      const { [columnKey]: deletedColumn, ...rest } = row;
+      return rest;
+    });
+    setColumns(updatedColumns);
+    setDataArray(updatedDataArray);
+    localStorage.setItem("tableColumns", JSON.stringify(updatedColumns));
+    localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
+    setTableKey((prevKey) => prevKey + 1); // Force re-render
+  };
+
+  const handleSortColumn = (key: string, order: "asc" | "desc") => {
+    const sortedData = [...dataArray].sort((a, b) => {
+      const valueA = a[key]?.toString().trim() || "";
+      const valueB = b[key]?.toString().trim() || "";
+
+      if (valueA === "" && valueB === "") return 0;
+      if (valueA === "") return order === "asc" ? -1 : 1;
+      if (valueB === "") return order === "asc" ? -1 : 1;
+      if (valueA < valueB) return order === "asc" ? 1 : -1;
+      if (valueA > valueB) return order === "asc" ? -1 : 1;
+      return 0;
+    });
+
+    setDataArray(sortedData);
+    localStorage.setItem("tableData", JSON.stringify(sortedData));
   };
 
   const open = Boolean(anchorEl);
@@ -97,10 +141,9 @@ const ColumnPopover: React.FC<RenameColumnPopoverProps> = ({
               },
             }}
           />
-          <div style={{ marginTop: "10px" , display:"flex", flexDirection:"column", alignSelf:"self-start"}}>
-            <Button onClick={() => onSort(columnKey, "asc")} > <FaArrowUp />Sort Ascending</Button>
-            <Button onClick={() => onSort(columnKey, "desc")} ><FaArrowDown />Sort Descending</Button>
-            
+          <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", alignSelf: "self-start" }}>
+            <Button onClick={() => handleSortColumn(columnKey, "asc")}> <FaArrowUp /> Sort Ascending</Button>
+            <Button onClick={() => handleSortColumn(columnKey, "desc")}><FaArrowDown /> Sort Descending</Button>
             <Button
               onClick={handleDeleteClick}
               style={{
@@ -136,7 +179,6 @@ const ColumnPopover: React.FC<RenameColumnPopoverProps> = ({
           <Button onClick={handleDeleteConfirm} color="secondary">
             Delete
           </Button>
-         
         </DialogActions>
       </Dialog>
     </div>

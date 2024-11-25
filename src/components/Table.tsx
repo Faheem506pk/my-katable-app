@@ -77,40 +77,6 @@ const KaTable = () => {
     localStorage.setItem("tableData", JSON.stringify(dataArray));
   }, [columns, dataArray]);
 
-  const handleRenameColumn = (key: string, newTitle: string) => {
-    const updatedColumns = columns.map((col) =>
-      col.key === key ? { ...col, title: newTitle } : col
-    );
-    // Update the columns state
-    setColumns(updatedColumns);
-    // Reset the table key to force a full re-render
-    setTableKey((prevKey) => prevKey + 1);
-    // Save the updated columns to localStorage
-    localStorage.setItem("tableColumns", JSON.stringify(updatedColumns));
-  };
-
-  const handleDeleteColumn = (columnKey: string) => {
-    // Remove the column from the columns state
-    const updatedColumns = columns.filter((col) => col.key !== columnKey);
-
-    // Remove the column data from each row in dataArray
-    const updatedDataArray = dataArray.map((row: { [x: string]: any }) => {
-      const { [columnKey]: deletedColumn, ...rest } = row; // Destructure to remove the column
-      return rest;
-    });
-
-    // Update the columns and dataArray states
-    setColumns(updatedColumns);
-    setDataArray(updatedDataArray);
-
-    // Save updated columns and dataArray to localStorage
-    localStorage.setItem("tableColumns", JSON.stringify(updatedColumns));
-    localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
-
-    // Trigger re-render by updating tableKey
-    setTableKey((prevKey) => prevKey + 1);
-  };
-
   const handleAddColumn = () => {
     const newColumn: Column = {
       key: `NewColumn-${columns.length + 1}`,
@@ -192,37 +158,6 @@ const KaTable = () => {
         setTableKey((prevKey) => prevKey + 1);
       };
  
-  
-  const handleSortColumn = (key: string, order: "asc" | "desc") => {
-    const sortedData = [...dataArray].sort((a, b) => {
-      // Normalize values: treat null, undefined, or space-only values as empty strings
-      const valueA = a[key]?.toString().trim() || ""; // Empty strings or spaces will become ""
-      const valueB = b[key]?.toString().trim() || ""; // Empty strings or spaces will become ""
-  
-      // Handle case where both values are empty (after trimming spaces)
-      if (valueA === "" && valueB === "") return 0;
-  
-      // Ensure empty or space-only values are always pushed to the bottom
-      if (valueA === "") return order === "asc" ? -1 : 1; // Push empty to bottom
-      if (valueB === "") return order === "asc" ? -1 : 1; // Push empty to bottom
-      if (valueA === "") return order === "desc" ? -1 : 1; // Push empty to bottom
-      if (valueB === "") return order === "desc" ? 1 : -1; // Push empty to bottom
-
-      // Compare the non-empty values
-      if (valueA < valueB) return order === "asc" ? 1 : -1;
-      if (valueA > valueB) return order === "asc" ? -1 : 1;
-      if (valueA > valueB) return order === "desc" ? 1 : -1;
-      if (valueA < valueB) return order === "desc" ? -1 : 1;
-
-      return 0;
-    });
-  
-    setDataArray(sortedData);
-  
-    // Save sorted data to localStorage
-    localStorage.setItem("tableData", JSON.stringify(sortedData));
-  };
-  
   return (
     <div className="main">
       <div
@@ -282,9 +217,11 @@ const KaTable = () => {
                   <ColumnPopover
                     columnKey={props.column.key}
                     currentTitle={props.column.title || ""}
-                    onRename={handleRenameColumn}
-                    onDelete={handleDeleteColumn}
-                    onSort={handleSortColumn}
+                    columns={columns}
+                    dataArray={dataArray}
+                    setColumns={setColumns}
+                    setDataArray={setDataArray}
+                    setTableKey={setTableKey}
                   />
                 );
               },
