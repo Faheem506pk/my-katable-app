@@ -6,6 +6,7 @@ import { FaPlus } from "react-icons/fa";
 import { Button } from "@mui/material";
 import { MdDragIndicator } from "react-icons/md";
 import ColumnPopover from "./ColumnPopover";
+import { MdDeleteOutline } from "react-icons/md";
 
 const KaTable = () => {
   const [columns, setColumns] = useState<Column[]>(() => {
@@ -15,7 +16,7 @@ const KaTable = () => {
 
     if (!savedColumns || savedColumns.length === 0) {
       return [
-        { key: "drag", width: 30, isEditable: false, title: "" },
+        { key: "action", width: 30, isEditable: false, title: "" },
         {
           key: "Name",
           title: "Name",
@@ -65,6 +66,7 @@ const KaTable = () => {
 
   const table = useTable();
   const [tableKey, setTableKey] = useState(0); // Track key to force table re-render
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
 
   useEffect(() => {
     const columnsWithAddColumn = columns.filter(
@@ -142,8 +144,9 @@ const KaTable = () => {
   };
 
   const handleAddRow = () => {
+    const maxId = Math.max(...dataArray.map((row: { id: any; }) => row.id), 0);
     const newRow = {
-      id: dataArray.length,
+      id: maxId + 1,
       Name: "",
       FatherName: "",
       DateOfBirth: "",
@@ -181,7 +184,63 @@ const KaTable = () => {
     );
     setDataArray(updatedData);
   };
+  const handleDeleteRow = (rowKey: any) => {
+        const updatedDataArray = dataArray.filter((row: { id: any }) => row.id !== rowKey);
+    
+        // Update the dataArray state
+        setDataArray(updatedDataArray);
+    
+        // Save updated dataArray to localStorage
+        localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
+    
+        // Trigger re-render by updating tableKey if necessary
+        setTableKey((prevKey) => prevKey + 1);
+      };
+ 
 
+  // const ActionButton = ({ rowData }: { rowData: any }) => {
+  //   const handleDeleteRow = (rowKey: any) => {
+  //     const updatedDataArray = dataArray.filter((row: { id: any }) => row.id !== rowKey);
+  
+  //     // Update the dataArray state
+  //     setDataArray(updatedDataArray);
+  
+  //     // Save updated dataArray to localStorage
+  //     localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
+  
+  //     // Trigger re-render by updating tableKey if necessary
+  //     setTableKey((prevKey) => prevKey + 1);
+  //   };
+  
+  //   return (
+  //     <div style={{ display: "flex" }}>
+  //       <MdDeleteOutline
+  //         style={{ cursor: "pointer" }}
+  //         onClick={() => handleDeleteRow(rowData.id)}
+  //       />
+  //       <MdDragIndicator style={{ cursor: "move" }} />
+  //     </div>
+  //   );
+  // };
+
+  const ActionButton = ({
+    rowId,
+    rowData,
+  }: {
+    rowId: any;
+    rowData: any;
+  }) => (
+    hoveredRow === rowId ? (
+      <div style={{ display: "flex" }}>
+        <MdDeleteOutline
+          style={{ cursor: "pointer" }}
+          onClick={() => handleDeleteRow(rowData.id)}
+        />
+        <MdDragIndicator style={{ cursor: "move" }} />
+      </div>
+    ) : null
+  );
+  
   return (
     <div className="main">
       <div
@@ -194,7 +253,7 @@ const KaTable = () => {
           table={table}
           columns={columns}
           data={dataArray}
-          rowKeyField="id"
+          rowKeyField={'id'}
           editingMode={EditingMode.Cell}
           columnReordering={true}
           rowReordering={true}
@@ -202,11 +261,13 @@ const KaTable = () => {
           childComponents={{
             cell: {
               content: (props) => {
-                switch (props.column.key) {
-                  case "drag":
-                    return <MdDragIndicator style={{ cursor: "move" }} />;
-                }
                 const { column, rowData } = props;
+                
+                switch (props.column.key) {
+                  case "action":
+                    return <ActionButton rowData={props.rowData} rowId={props.rowData.id} />; 
+                }
+                
 
                 if (column.isEditable) {
                   return (
@@ -244,6 +305,25 @@ const KaTable = () => {
                     onDelete={handleDeleteColumn}
                   />
                 );
+              },
+            },
+            dataRow: {
+              elementAttributes: ({ rowData}) => {
+              
+                const rowKey = rowData.id;  // Directly use the rowKeyField, which should be a number (e.g., row.id)
+               
+
+                return {
+                  onMouseEnter: () => {
+                    console.log("Row hovered:", rowKey); // Debugging
+                    console.log("Row hovered rowData:", rowData); // Debugging
+                    setHoveredRow(rowKey);
+                  },
+                  onMouseLeave: () => {
+                    console.log("Row left:", rowKey); // Debugging
+                    setHoveredRow(null);
+                  },
+                };
               },
             },
           }}
