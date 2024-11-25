@@ -26,6 +26,7 @@ const ColumnPopover: React.FC<RenameColumnPopoverProps> = ({
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [newTitle, setNewTitle] = useState(currentTitle);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  
 
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);

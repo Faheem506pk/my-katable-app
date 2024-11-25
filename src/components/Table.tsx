@@ -7,6 +7,7 @@ import { Button } from "@mui/material";
 import { MdDragIndicator } from "react-icons/md";
 import ColumnPopover from "./ColumnPopover";
 import { MdDeleteOutline } from "react-icons/md";
+import ActionButton from "./ActionButton"; 
 
 const KaTable = () => {
   const [columns, setColumns] = useState<Column[]>(() => {
@@ -178,8 +179,8 @@ const KaTable = () => {
     );
     setDataArray(updatedData);
   };
-  const handleDeleteRow = (rowKey: any) => {
-        const updatedDataArray = dataArray.filter((row: { id: any }) => row.id !== rowKey);
+  const handleDeleteRow = (rowData: any) => {
+        const updatedDataArray = dataArray.filter((row: { id: any }) => row.id !== rowData);
     
         // Update the dataArray state
         setDataArray(updatedDataArray);
@@ -191,23 +192,7 @@ const KaTable = () => {
         setTableKey((prevKey) => prevKey + 1);
       };
  
-  const ActionButton = ({
-    rowId,
-    rowData,
-  }: {
-    rowId: any;
-    rowData: any;
-  }) => (
-    hoveredRow === rowId ? (
-      <div style={{ display: "flex" }}>
-        <MdDeleteOutline
-          style={{ cursor: "pointer" }}
-          onClick={() => handleDeleteRow(rowData.id)}
-        />
-        <MdDragIndicator style={{ cursor: "move" }} />
-      </div>
-    ) : null
-  );
+  
   const handleSortColumn = (key: string, order: "asc" | "desc") => {
     const sortedData = [...dataArray].sort((a, b) => {
       // Normalize values: treat null, undefined, or space-only values as empty strings
@@ -238,10 +223,6 @@ const KaTable = () => {
     localStorage.setItem("tableData", JSON.stringify(sortedData));
   };
   
-  
-  
-  
-  
   return (
     <div className="main">
       <div
@@ -266,7 +247,7 @@ const KaTable = () => {
                 
                 switch (props.column.key) {
                   case "action":
-                    return <ActionButton rowData={props.rowData} rowId={props.rowData.id} />; 
+                    return <ActionButton rowData={props.rowData} rowId={props.rowData.id}  hoveredRow={hoveredRow}  handleDeleteRow={handleDeleteRow} />; 
                 }
 
                 if (column.isEditable) {
@@ -309,7 +290,7 @@ const KaTable = () => {
               },
             },
             dataRow: {
-              elementAttributes: ({ rowData}) => {
+              elementAttributes: ({rowData}) => {
 
                 const rowKey = rowData.id;  // Directly use the rowKeyField, which should be a number (e.g., row.id)
                 return {
