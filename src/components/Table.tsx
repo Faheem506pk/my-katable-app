@@ -4,9 +4,7 @@ import { DataType, EditingMode } from "ka-table/enums";
 import { Column } from "ka-table/models";
 import { FaPlus } from "react-icons/fa";
 import { Button } from "@mui/material";
-import { MdDragIndicator } from "react-icons/md";
 import ColumnPopover from "./ColumnPopover";
-import { MdDeleteOutline } from "react-icons/md";
 import ActionButton from "./ActionButton"; 
 
 const KaTable = () => {
