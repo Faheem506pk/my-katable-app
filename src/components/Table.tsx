@@ -6,6 +6,7 @@ import { FaPlus } from "react-icons/fa";
 import { Button } from "@mui/material";
 import ColumnPopover from "./ColumnPopover";
 import ActionButton from "./ActionButton"; 
+import AddNewColumn from "./AddNewColumn";
 
 const KaTable = () => {
   const [columns, setColumns] = useState<Column[]>(() => {
@@ -75,33 +76,7 @@ const KaTable = () => {
     localStorage.setItem("tableData", JSON.stringify(dataArray));
   }, [columns, dataArray]);
 
-  const handleAddColumn = () => {
-    const newColumn: Column = {
-      key: `NewColumn-${columns.length + 1}`,
-      title: `NewColumn-${columns.length + 1}`,
-      dataType: DataType.String,
-      style: { minWidth: 199 },
-      isEditable: true,
-    };
-
-    const indexOfAddColumn = columns.findIndex(
-      (col) => col.key === "AddColumn"
-    );
-    const updatedColumns = [
-      ...columns.slice(0, indexOfAddColumn),
-      newColumn,
-      ...columns.slice(indexOfAddColumn),
-    ];
-
-    setColumns(updatedColumns);
-
-    table.dispatch({
-      type: "InsertColumn",
-      column: newColumn,
-      index: indexOfAddColumn,
-    });
-  };
-
+  
   const handleAddRow = () => {
     const maxId = Math.max(...dataArray.map((row: { id: any; }) => row.id), 0);
     const newRow = {
@@ -126,12 +101,6 @@ const KaTable = () => {
       setDataArray(emptyRows);
     }
   }, [dataArray]);
-
-  const AddButton = () => (
-    <Button onClick={handleAddColumn}>
-      <FaPlus />
-    </Button>
-  );
 
   const handleCellValueChange = (
     rowKey: any,
@@ -162,7 +131,6 @@ const KaTable = () => {
         style={{ overflowX: "auto", marginLeft: "auto", marginRight: "auto" }}
         className="table-container"
       >
-        {/* Add dynamic key to force table re-render */}
         <Table
           key={tableKey}
           table={table}
@@ -209,7 +177,7 @@ const KaTable = () => {
             headCell: {
               content: (props) => {
                 if (props.column.key === "AddColumn") {
-                  return <AddButton />;
+                  return <AddNewColumn columns={columns} setColumns={setColumns} table={table} />;
                 }
                 return (
                   <ColumnPopover
@@ -226,16 +194,12 @@ const KaTable = () => {
             },
             dataRow: {
               elementAttributes: ({rowData}) => {
-
-                const rowKey = rowData.id;  // Directly use the rowKeyField, which should be a number (e.g., row.id)
+                const rowKey = rowData.id;  
                 return {
-                  onMouseEnter: () => {
-                    console.log("Row hovered:", rowKey); // Debugging
-                    console.log("Row hovered rowData:", rowData); // Debugging
+                  onMouseEnter: () => {          
                     setHoveredRow(rowKey);
                   },
                   onMouseLeave: () => {
-                    console.log("Row left:", rowKey); // Debugging
                     setHoveredRow(null);
                   },
                 };
