@@ -7,6 +7,8 @@ import { Button } from "@mui/material";
 import ColumnPopover from "./ColumnPopover";
 import ActionButton from "./ActionButton"; 
 import AddNewColumn from "./AddNewColumn";
+import DatePicker from "react-datepicker";
+
 
 const KaTable = () => {
   const [columns, setColumns] = useState<Column[]>(() => {
@@ -82,8 +84,8 @@ const KaTable = () => {
     const newRow = {
       id: maxId + 1,
       Name: "",
-      FatherName: "",
-      DateOfBirth: "",
+      Salary: null,
+      DateOfBirth: new Date(),
     };
     setDataArray([...dataArray, newRow]);
   };
@@ -95,8 +97,8 @@ const KaTable = () => {
         .map((_, index) => ({
           id: index,
           Name: "",
-          FatherName: "",
-          DateOfBirth: "",
+          Salary: null,
+          DateOfBirth: new Date(),
         }));
       setDataArray(emptyRows);
     }
@@ -132,6 +134,7 @@ const KaTable = () => {
         style={{ overflowX: "auto", marginLeft: "auto", marginRight: "auto" }}
         className="table-container"
       >
+       
         <Table
           key={tableKey}
           table={table}
@@ -142,17 +145,34 @@ const KaTable = () => {
           columnReordering={true}
           rowReordering={true}
           columnResizing={true}
+          
           childComponents={{
             cell: {
               content: (props) => {
                 const { column, rowData } = props;
-                
+            
                 switch (props.column.key) {
                   case "action":
                     return <ActionButton rowData={props.rowData} rowId={props.rowData.id}  hoveredRow={hoveredRow}  handleDeleteRow={handleDeleteRow} />; 
                 }
-
-                if (column.isEditable) {
+            
+                if (column.dataType === DataType.Date) {
+                  return (
+                    <DatePicker
+                      selected={rowData[column.key] ? new Date(rowData[column.key]) : null}  // Ensure the date is valid
+                      onChange={(date: Date | null) => {
+                        // Handle date change, ensure null is handled
+                        if (date) {
+                          handleCellValueChange(rowData.id, column.key, date.toISOString());
+                        } else {
+                          handleCellValueChange(rowData.id, column.key, "");  // Handle null case
+                        }
+                      }}
+                      dateFormat="yyyy-MM-dd" // Format the date
+                      className="date-picker" // Add your custom styles if needed
+                    />
+                  );
+                } else if (column.isEditable) {
                   return (
                     <input
                       type="text"
@@ -175,6 +195,7 @@ const KaTable = () => {
                 return null;
               },
             },
+            
             headCell: {
               content: (props) => {
                 if (props.column.key === "AddColumn") {
@@ -208,6 +229,7 @@ const KaTable = () => {
             },
           }}
         />
+        
         <div style={{ marginTop: "20px" }}>
           <Button onClick={handleAddRow}>
             <FaPlus /> Add Row
