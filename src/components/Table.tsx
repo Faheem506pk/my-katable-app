@@ -197,32 +197,6 @@ const KaTable = () => {
         setTableKey((prevKey) => prevKey + 1);
       };
  
-
-  // const ActionButton = ({ rowData }: { rowData: any }) => {
-  //   const handleDeleteRow = (rowKey: any) => {
-  //     const updatedDataArray = dataArray.filter((row: { id: any }) => row.id !== rowKey);
-  
-  //     // Update the dataArray state
-  //     setDataArray(updatedDataArray);
-  
-  //     // Save updated dataArray to localStorage
-  //     localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
-  
-  //     // Trigger re-render by updating tableKey if necessary
-  //     setTableKey((prevKey) => prevKey + 1);
-  //   };
-  
-  //   return (
-  //     <div style={{ display: "flex" }}>
-  //       <MdDeleteOutline
-  //         style={{ cursor: "pointer" }}
-  //         onClick={() => handleDeleteRow(rowData.id)}
-  //       />
-  //       <MdDragIndicator style={{ cursor: "move" }} />
-  //     </div>
-  //   );
-  // };
-
   const ActionButton = ({
     rowId,
     rowData,
