@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Popover from "@mui/material/Popover";
 import TextField from "@mui/material/TextField";
-import { FaTrash } from "react-icons/fa";
+import { FaArrowDown, FaArrowUp, FaTrash } from "react-icons/fa";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -13,6 +13,7 @@ interface RenameColumnPopoverProps {
   currentTitle: string;
   onRename: (key: string, newTitle: string) => void;
   onDelete: (key: string) => void;
+  onSort: (key: string, order: "asc" | "desc") => void; 
 }
 
 const ColumnPopover: React.FC<RenameColumnPopoverProps> = ({
@@ -20,6 +21,7 @@ const ColumnPopover: React.FC<RenameColumnPopoverProps> = ({
   currentTitle,
   onRename,
   onDelete,
+  onSort,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [newTitle, setNewTitle] = useState(currentTitle);
@@ -94,8 +96,11 @@ const ColumnPopover: React.FC<RenameColumnPopoverProps> = ({
               },
             }}
           />
-          <div style={{ marginTop: "10px" }}>
-            <button
+          <div style={{ marginTop: "10px" , display:"flex", flexDirection:"column", alignSelf:"self-start"}}>
+            <Button onClick={() => onSort(columnKey, "asc")} > <FaArrowUp />Sort Ascending</Button>
+            <Button onClick={() => onSort(columnKey, "desc")} ><FaArrowDown />Sort Descending</Button>
+            
+            <Button
               onClick={handleDeleteClick}
               style={{
                 background: "transparent",
@@ -108,7 +113,7 @@ const ColumnPopover: React.FC<RenameColumnPopoverProps> = ({
             >
               <FaTrash style={{ marginRight: "5px" }} />
               Delete Column
-            </button>
+            </Button>
           </div>
         </div>
       </Popover>
@@ -130,6 +135,7 @@ const ColumnPopover: React.FC<RenameColumnPopoverProps> = ({
           <Button onClick={handleDeleteConfirm} color="secondary">
             Delete
           </Button>
+         
         </DialogActions>
       </Dialog>
     </div>

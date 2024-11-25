@@ -16,35 +16,29 @@ const KaTable = () => {
 
     if (!savedColumns || savedColumns.length === 0) {
       return [
-        { key: "action", width: 30, isEditable: false, title: "" },
+        { key: "action", width: 30, isResizable: false , isEditable: false, title: ""},
         {
           key: "Name",
           title: "Name",
           dataType: DataType.String,
           style: { minWidth: 199 },
-         
           isEditable: true,
-          
         },
         {
           key: "FatherName",
           title: "Father Name",
           dataType: DataType.String,
-         
           style: { minWidth: 199 },
           isEditable: true,
-          
         },
         {
           key: "DateOfBirth",
           title: "Date Of Birth",
           dataType: DataType.String,
-          
           style: { minWidth: 199 },
           isEditable: true,
-          
         },
-        { key: "AddColumn", style: { minWidth: 140 }, isEditable: false },
+        { key: "AddColumn", style: { minWidth: 140 }, isEditable: false, isResizable: false },
       ];
     }
 
@@ -214,6 +208,39 @@ const KaTable = () => {
       </div>
     ) : null
   );
+  const handleSortColumn = (key: string, order: "asc" | "desc") => {
+    const sortedData = [...dataArray].sort((a, b) => {
+      // Normalize values: treat null, undefined, or space-only values as empty strings
+      const valueA = a[key]?.toString().trim() || ""; // Empty strings or spaces will become ""
+      const valueB = b[key]?.toString().trim() || ""; // Empty strings or spaces will become ""
+  
+      // Handle case where both values are empty (after trimming spaces)
+      if (valueA === "" && valueB === "") return 0;
+  
+      // Ensure empty or space-only values are always pushed to the bottom
+      if (valueA === "") return order === "asc" ? -1 : 1; // Push empty to bottom
+      if (valueB === "") return order === "asc" ? -1 : 1; // Push empty to bottom
+      if (valueA === "") return order === "desc" ? -1 : 1; // Push empty to bottom
+      if (valueB === "") return order === "desc" ? 1 : -1; // Push empty to bottom
+
+      // Compare the non-empty values
+      if (valueA < valueB) return order === "asc" ? 1 : -1;
+      if (valueA > valueB) return order === "asc" ? -1 : 1;
+      if (valueA > valueB) return order === "desc" ? 1 : -1;
+      if (valueA < valueB) return order === "desc" ? -1 : 1;
+
+      return 0;
+    });
+  
+    setDataArray(sortedData);
+  
+    // Save sorted data to localStorage
+    localStorage.setItem("tableData", JSON.stringify(sortedData));
+  };
+  
+  
+  
+  
   
   return (
     <div className="main">
@@ -241,7 +268,6 @@ const KaTable = () => {
                   case "action":
                     return <ActionButton rowData={props.rowData} rowId={props.rowData.id} />; 
                 }
-                
 
                 if (column.isEditable) {
                   return (
@@ -277,16 +303,15 @@ const KaTable = () => {
                     currentTitle={props.column.title || ""}
                     onRename={handleRenameColumn}
                     onDelete={handleDeleteColumn}
+                    onSort={handleSortColumn}
                   />
                 );
               },
             },
             dataRow: {
               elementAttributes: ({ rowData}) => {
-              
-                const rowKey = rowData.id;  // Directly use the rowKeyField, which should be a number (e.g., row.id)
-               
 
+                const rowKey = rowData.id;  // Directly use the rowKeyField, which should be a number (e.g., row.id)
                 return {
                   onMouseEnter: () => {
                     console.log("Row hovered:", rowKey); // Debugging
