@@ -1,8 +1,8 @@
-import { Button, Popover, MenuItem, MenuList } from '@mui/material';
-import { FaPlus } from 'react-icons/fa';
-import { Column } from 'ka-table/models';
+import { Button, Popover, MenuItem, MenuList } from "@mui/material";
+import { FaPlus } from "react-icons/fa";
+import { Column } from "ka-table/models";
 import { DataType } from "ka-table/enums";
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface AddNewColumnProps {
   columns: Column[];
@@ -10,16 +10,19 @@ interface AddNewColumnProps {
   table: any;
 }
 
-// Data type mapping to handle future extensions
 const dataTypeMap: Record<string, any> = {
-  Email:  DataType.Email, // Custom string data type
-  Date:   DataType.Date, // Custom string data type         
-  Number: DataType.Number, // Enum from DataType
-  String: DataType.String, // Enum from DataType
+  Email: DataType.Email,
+  Date: DataType.Date,
+  Number: DataType.Number,
+  String: DataType.String,
   // You can easily add more types here in the future
 };
 
-export default function AddNewColumn({ columns, setColumns, table }: AddNewColumnProps) {
+export default function AddNewColumn({
+  columns,
+  setColumns,
+  table,
+}: AddNewColumnProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedDataType, setSelectedDataType] = useState<string | null>(null);
 
@@ -75,13 +78,16 @@ export default function AddNewColumn({ columns, setColumns, table }: AddNewColum
         anchorEl={anchorEl}
         onClose={handleClose}
         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
+          vertical: "bottom",
+          horizontal: "center",
         }}
       >
         <MenuList>
           {Object.keys(dataTypeMap).map((dataType) => (
-            <MenuItem key={dataType} onClick={() => handleSelectDataType(dataType)}>
+            <MenuItem
+              key={dataType}
+              onClick={() => handleSelectDataType(dataType)}
+            >
               {dataType}
             </MenuItem>
           ))}
