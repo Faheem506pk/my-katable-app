@@ -67,6 +67,10 @@ body {
   border-right: none !important;
 }
 
+.date-picker{
+  border: none;
+}
+
 
 /* [data-theme="dark"] */
 

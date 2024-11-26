@@ -7,10 +7,18 @@ import { Button } from "@mui/material";
 import ColumnPopover from "./ColumnPopover";
 import ActionButton from "./ActionButton"; 
 import AddNewColumn from "./AddNewColumn";
-import DatePicker from "react-datepicker";
+import DateCell from "./DataTypes/DateCell";
+import EmailCell from "./DataTypes/EmailCell";
 
 
 const KaTable = () => {
+  const table = useTable();
+  const [tableKey, setTableKey] = useState(0); 
+  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+
+  const [dataArray, setDataArray] = useState(
+    JSON.parse(localStorage.getItem("tableData") || "[]") || []
+  );
   const [columns, setColumns] = useState<Column[]>(() => {
     const savedColumns = JSON.parse(
       localStorage.getItem("tableColumns") || "[]"
@@ -34,35 +42,52 @@ const KaTable = () => {
           isEditable: true,
         },
         {
-          key: "DateOfBirth",
+          key: "DateOfBirth",                                    
           title: "Date Of Birth",
           dataType: DataType.Date,
+          style: { minWidth: 199 },
+          isEditable: true,
+        },
+        {
+          key: "Email",
+          title: "Email",
+          dataType: EmailCell,
           style: { minWidth: 199 },
           isEditable: true,
         },
         { key: "AddColumn", style: { minWidth: 140 }, isEditable: false, isResizable: false },
       ];
     }
-
-    const columnKeys = savedColumns.map((col: Column) => col.key);
-    if (!columnKeys.includes("AddColumn")) {
-      savedColumns.push({
-        key: "AddColumn",
-        title: "Add Column",
-        style: { minWidth: 110 },
-        isEditable: false,
-      });
-    }
     return savedColumns;
   });
-
-  const [dataArray, setDataArray] = useState(
-    JSON.parse(localStorage.getItem("tableData") || "[]") || []
-  );
-
-  const table = useTable();
-  const [tableKey, setTableKey] = useState(0); // Track key to force table re-render
-  const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+  const handleAddRow = () => {
+    const maxId = Math.max(...dataArray.map((row: { id: any; }) => row.id), 0);
+    const newRow = {
+      id: maxId + 1,
+      Name: "",
+      Salary: null,
+      DateOfBirth: null,
+    };
+    setDataArray([...dataArray, newRow]);
+  };
+  
+  const handleCellValueChange = (
+    rowKey: any,
+    columnKey: string,
+    value: string
+  ) => {
+    const updatedData = dataArray.map((row: { id: any }) =>
+      row.id === rowKey ? { ...row, [columnKey]: value } : row
+    );
+    setDataArray(updatedData);
+  };
+  
+  const handleDeleteRow = (rowData: any) => {
+        const updatedDataArray = dataArray.filter((row: { id: any }) => row.id !== rowData);
+        setDataArray(updatedDataArray);
+        localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
+        setTableKey((prevKey) => prevKey + 1);
+      };
 
   useEffect(() => {
     const columnsWithAddColumn = columns.filter(
@@ -78,18 +103,6 @@ const KaTable = () => {
     localStorage.setItem("tableData", JSON.stringify(dataArray));
   }, [columns, dataArray]);
 
-  
-  const handleAddRow = () => {
-    const maxId = Math.max(...dataArray.map((row: { id: any; }) => row.id), 0);
-    const newRow = {
-      id: maxId + 1,
-      Name: "",
-      Salary: null,
-      DateOfBirth: new Date(),
-    };
-    setDataArray([...dataArray, newRow]);
-  };
-
   useEffect(() => {
     if (dataArray.length === 0) {
       const emptyRows = Array(5)
@@ -98,36 +111,12 @@ const KaTable = () => {
           id: index,
           Name: "",
           Salary: null,
-          DateOfBirth: new Date(),
+          DateOfBirth: null,
         }));
       setDataArray(emptyRows);
     }
   }, [dataArray]);
 
-  const handleCellValueChange = (
-    rowKey: any,
-    columnKey: string,
-    value: string
-  ) => {
-    const updatedData = dataArray.map((row: { id: any }) =>
-      row.id === rowKey ? { ...row, [columnKey]: value } : row
-    );
-    setDataArray(updatedData);
-  };
-  
-  const handleDeleteRow = (rowData: any) => {
-        const updatedDataArray = dataArray.filter((row: { id: any }) => row.id !== rowData);
-    
-        // Update the dataArray state
-        setDataArray(updatedDataArray);
-    
-        // Save updated dataArray to localStorage
-        localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
-    
-        // Trigger re-render by updating tableKey if necessary
-        setTableKey((prevKey) => prevKey + 1);
-      };
- 
   return (
     <div className="main">
       <div
@@ -145,7 +134,6 @@ const KaTable = () => {
           columnReordering={true}
           rowReordering={true}
           columnResizing={true}
-          
           childComponents={{
             cell: {
               content: (props) => {
@@ -155,23 +143,23 @@ const KaTable = () => {
                   case "action":
                     return <ActionButton rowData={props.rowData} rowId={props.rowData.id}  hoveredRow={hoveredRow}  handleDeleteRow={handleDeleteRow} />; 
                 }
-            
-                if (column.dataType === DataType.Date) {
+                if (column.key === "Email") {
                   return (
-                    <DatePicker
-                      selected={rowData[column.key] ? new Date(rowData[column.key]) : null}  // Ensure the date is valid
-                      onChange={(date: Date | null) => {
-                        // Handle date change, ensure null is handled
-                        if (date) {
-                          handleCellValueChange(rowData.id, column.key, date.toISOString());
-                        } else {
-                          handleCellValueChange(rowData.id, column.key, "");  // Handle null case
-                        }
-                      }}
-                      dateFormat="yyyy-MM-dd" // Format the date
-                      className="date-picker" // Add your custom styles if needed
+                    <EmailCell
+                      value={rowData[column.key] || ""}
+                      rowId={rowData.id}
+                      columnKey={column.key}
+                      onChange={handleCellValueChange}
                     />
                   );
+                } else if (column.dataType === DataType.Date) {
+                  return (
+                    <DateCell
+                          rowId={rowData.id}
+                          value={rowData[column.key] || null} 
+                          onChange={handleCellValueChange} 
+                          columnKey={column.key}
+                         />);
                 } else if (column.isEditable) {
                   return (
                     <input
