@@ -37,6 +37,7 @@ export default function AddNewColumn({
   const handleSelectDataType = (dataType: string) => {
     setSelectedDataType(dataType);
     handleAddColumn(dataType);
+    console.log(`selectedDataType: ${selectedDataType}`);
     handleClose();
   };
 
