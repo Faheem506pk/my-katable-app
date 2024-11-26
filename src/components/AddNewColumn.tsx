@@ -1,47 +1,92 @@
-import { Button } from '@mui/material';
+import { Button, Popover, MenuItem, MenuList } from '@mui/material';
 import { FaPlus } from 'react-icons/fa';
 import { Column } from 'ka-table/models';
-import { DataType} from "ka-table/enums";
+import { DataType } from "ka-table/enums";
+import React, { useState } from 'react';
 
 interface AddNewColumnProps {
-    columns: Column[];
-    setColumns: React.Dispatch<React.SetStateAction<Column[]>>;
-    table: any; 
-  }
+  columns: Column[];
+  setColumns: React.Dispatch<React.SetStateAction<Column[]>>;
+  table: any;
+}
 
-  export default function AddNewColumn({ columns, setColumns, table }: AddNewColumnProps) {
-    const handleAddColumn = () => {
-        const newColumn: Column = {
-          key: `NewColumn-${columns.length + 1}`,
-          title: `NewColumn-${columns.length + 1}`,
-          dataType: DataType.String,
-          style: { minWidth: 199 },
-          isEditable: true,
-        };
-    
-        const indexOfAddColumn = columns.findIndex(
-          (col) => col.key === "AddColumn"
-        );
-        const updatedColumns = [
-          ...columns.slice(0, indexOfAddColumn),
-          newColumn,
-          ...columns.slice(indexOfAddColumn),
-        ];
-    
-        setColumns(updatedColumns);
-    
-        table.dispatch({
-          type: "InsertColumn",
-          column: newColumn,
-          index: indexOfAddColumn,
-        });
-      };
+// Data type mapping to handle future extensions
+const dataTypeMap: Record<string, any> = {
+  Email:  DataType.Email, // Custom string data type
+  Date:   DataType.Date, // Custom string data type         
+  Number: DataType.Number, // Enum from DataType
+  String: DataType.String, // Enum from DataType
+  // You can easily add more types here in the future
+};
+
+export default function AddNewColumn({ columns, setColumns, table }: AddNewColumnProps) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedDataType, setSelectedDataType] = useState<string | null>(null);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSelectDataType = (dataType: string) => {
+    setSelectedDataType(dataType);
+    handleAddColumn(dataType);
+    handleClose();
+  };
+
+  const handleAddColumn = (dataType: string) => {
+    const newColumn: Column = {
+      key: `${dataType}-${columns.length + 1}`, // Set key based on the selected data type
+      title: `${dataType}-${columns.length + 1}`, // Set title based on the selected data type
+      dataType: dataTypeMap[dataType], // Use the map to get the correct value
+      style: { minWidth: 199 },
+      isEditable: true,
+    };
+
+    const indexOfAddColumn = columns.findIndex(
+      (col) => col.key === "AddColumn"
+    );
+    const updatedColumns = [
+      ...columns.slice(0, indexOfAddColumn),
+      newColumn,
+      ...columns.slice(indexOfAddColumn),
+    ];
+
+    setColumns(updatedColumns);
+
+    table.dispatch({
+      type: "InsertColumn",
+      column: newColumn,
+      index: indexOfAddColumn,
+    });
+  };
 
   return (
     <div>
-      <Button onClick={handleAddColumn}>
-      <FaPlus />
-    </Button>
+      <Button onClick={handleClick}>
+        <FaPlus />
+      </Button>
+
+      <Popover
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+      >
+        <MenuList>
+          {Object.keys(dataTypeMap).map((dataType) => (
+            <MenuItem key={dataType} onClick={() => handleSelectDataType(dataType)}>
+              {dataType}
+            </MenuItem>
+          ))}
+        </MenuList>
+      </Popover>
     </div>
-  )
+  );
 }

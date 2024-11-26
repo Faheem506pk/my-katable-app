@@ -40,7 +40,7 @@ const EmailCell: React.FC<EmailCellProps> = ({ value, rowId, columnKey, onChange
   };
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", height:"16px" , paddingTop:"5px"}}>
       {isEditing ? (
         <TextField
           value={email}
@@ -55,7 +55,6 @@ const EmailCell: React.FC<EmailCellProps> = ({ value, rowId, columnKey, onChange
         />
       ) : (
         <>
-          {/* Ensure the span is always rendered */}
           <span
             onClick={handleEditMode}
             style={{
@@ -64,16 +63,16 @@ const EmailCell: React.FC<EmailCellProps> = ({ value, rowId, columnKey, onChange
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
-              minHeight: "1.5rem", // Provide clickable area even when empty
-              borderBottom: email ? "none" : "none", // Dashed underline for empty cells
-              color: email ? "inherit" : "#aaa", // Light gray for empty cells
+              minHeight: "20px", 
+              borderBottom: email ? "none" : "none", 
+              color: email ? "inherit" : "#aaa", 
             }}
           >
             {email || " "}
           </span>
           {email && (
             <Tooltip title="Send Email">
-              <IconButton size="small" onClick={handleRedirect}>
+              <IconButton size="small" onClick={handleRedirect} style={{padding:"0px"}}>
                 <EmailIcon />
               </IconButton>
             </Tooltip>

@@ -11,6 +11,7 @@ import DateCell from "./DataTypes/DateCell";
 import EmailCell from "./DataTypes/EmailCell";
 
 
+
 const KaTable = () => {
   const table = useTable();
   const [tableKey, setTableKey] = useState(0); 
@@ -20,9 +21,11 @@ const KaTable = () => {
     JSON.parse(localStorage.getItem("tableData") || "[]") || []
   );
   const [columns, setColumns] = useState<Column[]>(() => {
+    
     const savedColumns = JSON.parse(
       localStorage.getItem("tableColumns") || "[]"
     );
+    
 
     if (!savedColumns || savedColumns.length === 0) {
       return [
@@ -33,6 +36,7 @@ const KaTable = () => {
           dataType: DataType.String,
           style: { minWidth: 199 },
           isEditable: true,
+          
         },
         {
           key: "Salary",
@@ -42,7 +46,7 @@ const KaTable = () => {
           isEditable: true,
         },
         {
-          key: "DateOfBirth",                                    
+          key: "Date",                                    
           title: "Date Of Birth",
           dataType: DataType.Date,
           style: { minWidth: 199 },
@@ -51,14 +55,18 @@ const KaTable = () => {
         {
           key: "Email",
           title: "Email",
-          dataType: EmailCell,
+          dataType: DataType.Email,
           style: { minWidth: 199 },
           isEditable: true,
         },
         { key: "AddColumn", style: { minWidth: 140 }, isEditable: false, isResizable: false },
       ];
     }
-    return savedColumns;
+    return savedColumns.map((col: any, index: any) => ({
+      ...col,
+      id: index, 
+    }));
+    
   });
   const handleAddRow = () => {
     const maxId = Math.max(...dataArray.map((row: { id: any; }) => row.id), 0);
@@ -70,7 +78,7 @@ const KaTable = () => {
     };
     setDataArray([...dataArray, newRow]);
   };
-  
+
   const handleCellValueChange = (
     rowKey: any,
     columnKey: string,
@@ -143,16 +151,17 @@ const KaTable = () => {
                   case "action":
                     return <ActionButton rowData={props.rowData} rowId={props.rowData.id}  hoveredRow={hoveredRow}  handleDeleteRow={handleDeleteRow} />; 
                 }
-                if (column.key === "Email") {
-                  return (
-                    <EmailCell
-                      value={rowData[column.key] || ""}
-                      rowId={rowData.id}
-                      columnKey={column.key}
-                      onChange={handleCellValueChange}
-                    />
-                  );
-                } else if (column.dataType === DataType.Date) {
+                  
+                  if (column.dataType === DataType.Email) {
+                    return (
+                      <EmailCell
+                        value={rowData[column.key] || ""}
+                        rowId={rowData.id}
+                        columnKey={column.key}
+                        onChange={handleCellValueChange}
+                      />
+                    );
+                  } else if (column.dataType === DataType.Date) {
                   return (
                     <DateCell
                           rowId={rowData.id}

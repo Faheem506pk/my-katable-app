@@ -58,13 +58,22 @@ const ColumnPopover: React.FC<ColumnPopoverProps> = ({
   };
 
   const handleRenameColumn = (key: string, newTitle: string) => {
-    const updatedColumns = columns.map((col) =>
-      col.key === key ? { ...col, title: newTitle } : col
-    );
-    setColumns(updatedColumns);
-    setTableKey((prevKey) => prevKey + 1); // Force re-render
-    localStorage.setItem("tableColumns", JSON.stringify(updatedColumns));
+    // Check if the column exists in localStorage before renaming
+    const savedColumns = JSON.parse(localStorage.getItem("tableColumns") || "[]");
+    const columnToRename = savedColumns.find((col: any) => col.key === key);
+
+    if (columnToRename) {
+      const updatedColumns = columns.map((col) =>
+        col.key === key ? { ...col, title: newTitle } : col
+      );
+      setColumns(updatedColumns);
+      setTableKey((prevKey) => prevKey + 1); // Force re-render
+      localStorage.setItem("tableColumns", JSON.stringify(updatedColumns));
+    } else {
+      console.error(`Column with key ${key} not found in local storage.`);
+    }
   };
+  
 
   const handleDeleteColumn = (columnKey: string) => {
     const updatedColumns = columns.filter((col) => col.key !== columnKey);
