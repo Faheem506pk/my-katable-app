@@ -10,6 +10,7 @@ import AddNewColumn from "./AddNewColumn";
 import DateCell from "./DataTypes/DateCell";
 import EmailCell from "./DataTypes/EmailCell";
 import PhoneCell from "./DataTypes/PhoneCell";
+import MultiSelectCell from "./DataTypes/MultiSelectCell";
 
 const KaTable = () => {
   const table = useTable();
@@ -170,6 +171,15 @@ const KaTable = () => {
                 } else if (column.dataType === "Phone") {
                   return (
                     <PhoneCell
+                      value={rowData[column.key] || ""}
+                      rowId={rowData.id}
+                      columnKey={column.key}
+                      onChange={handleCellValueChange}
+                    />
+                  );
+                } else if (column.dataType === "MultiSelect") {
+                  return (
+                    <MultiSelectCell
                       value={rowData[column.key] || ""}
                       rowId={rowData.id}
                       columnKey={column.key}
