@@ -5,38 +5,40 @@ import { Column } from "ka-table/models";
 import { FaPlus } from "react-icons/fa";
 import { Button } from "@mui/material";
 import ColumnPopover from "./ColumnPopover";
-import ActionButton from "./ActionButton"; 
+import ActionButton from "./ActionButton";
 import AddNewColumn from "./AddNewColumn";
 import DateCell from "./DataTypes/DateCell";
 import EmailCell from "./DataTypes/EmailCell";
-
-
+import PhoneCell from "./DataTypes/PhoneCell";
 
 const KaTable = () => {
   const table = useTable();
-  const [tableKey, setTableKey] = useState(0); 
+  const [tableKey, setTableKey] = useState(0);
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
 
   const [dataArray, setDataArray] = useState(
     JSON.parse(localStorage.getItem("tableData") || "[]") || []
   );
   const [columns, setColumns] = useState<Column[]>(() => {
-    
     const savedColumns = JSON.parse(
       localStorage.getItem("tableColumns") || "[]"
     );
-    
 
     if (!savedColumns || savedColumns.length === 0) {
       return [
-        { key: "action", width: 30, isResizable: false , isEditable: false, title: ""},
+        {
+          key: "action",
+          width: 30,
+          isResizable: false,
+          isEditable: false,
+          title: "",
+        },
         {
           key: "Name",
           title: "Name",
           dataType: DataType.String,
           style: { minWidth: 199 },
           isEditable: true,
-          
         },
         {
           key: "Salary",
@@ -46,30 +48,27 @@ const KaTable = () => {
           isEditable: true,
         },
         {
-          key: "Date",                                    
-          title: "Date Of Birth",
-          dataType: DataType.Date,
+          key: "Email",
+          title: "Email",
+          dataType: "Email",
           style: { minWidth: 199 },
           isEditable: true,
         },
         {
-          key: "Email",
-          title: "Email",
-          dataType: DataType.Email,
-          style: { minWidth: 199 },
-          isEditable: true,
+          key: "AddColumn",
+          style: { minWidth: 140 },
+          isEditable: false,
+          isResizable: false,
         },
-        { key: "AddColumn", style: { minWidth: 140 }, isEditable: false, isResizable: false },
       ];
     }
     return savedColumns.map((col: any, index: any) => ({
       ...col,
-      id: index, 
+      id: index,
     }));
-    
   });
   const handleAddRow = () => {
-    const maxId = Math.max(...dataArray.map((row: { id: any; }) => row.id), 0);
+    const maxId = Math.max(...dataArray.map((row: { id: any }) => row.id), 0);
     const newRow = {
       id: maxId + 1,
       Name: "",
@@ -89,13 +88,15 @@ const KaTable = () => {
     );
     setDataArray(updatedData);
   };
-  
+
   const handleDeleteRow = (rowData: any) => {
-        const updatedDataArray = dataArray.filter((row: { id: any }) => row.id !== rowData);
-        setDataArray(updatedDataArray);
-        localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
-        setTableKey((prevKey) => prevKey + 1);
-      };
+    const updatedDataArray = dataArray.filter(
+      (row: { id: any }) => row.id !== rowData
+    );
+    setDataArray(updatedDataArray);
+    localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
+    setTableKey((prevKey) => prevKey + 1);
+  };
 
   useEffect(() => {
     const columnsWithAddColumn = columns.filter(
@@ -131,13 +132,12 @@ const KaTable = () => {
         style={{ overflowX: "auto", marginLeft: "auto", marginRight: "auto" }}
         className="table-container"
       >
-       
         <Table
           key={tableKey}
           table={table}
           columns={columns}
           data={dataArray}
-          rowKeyField={'id'}
+          rowKeyField={"id"}
           editingMode={EditingMode.Cell}
           columnReordering={true}
           rowReordering={true}
@@ -146,29 +146,45 @@ const KaTable = () => {
             cell: {
               content: (props) => {
                 const { column, rowData } = props;
-            
-                switch (props.column.key) {
-                  case "action":
-                    return <ActionButton rowData={props.rowData} rowId={props.rowData.id}  hoveredRow={hoveredRow}  handleDeleteRow={handleDeleteRow} />; 
+
+                if (column.key === "action") {
+                  return (
+                    <ActionButton
+                      rowData={props.rowData}
+                      rowId={props.rowData.id}
+                      hoveredRow={hoveredRow}
+                      handleDeleteRow={handleDeleteRow}
+                    />
+                  );
                 }
-                  
-                  if (column.dataType === DataType.Email) {
-                    return (
-                      <EmailCell
-                        value={rowData[column.key] || ""}
-                        rowId={rowData.id}
-                        columnKey={column.key}
-                        onChange={handleCellValueChange}
-                      />
-                    );
-                  } else if (column.dataType === DataType.Date) {
+
+                if (column.dataType === "Email") {
+                  return (
+                    <EmailCell
+                      value={rowData[column.key] || ""}
+                      rowId={rowData.id}
+                      columnKey={column.key}
+                      onChange={handleCellValueChange}
+                    />
+                  );
+                } else if (column.dataType === "Phone") {
+                  return (
+                    <PhoneCell
+                      value={rowData[column.key] || ""}
+                      rowId={rowData.id}
+                      columnKey={column.key}
+                      onChange={handleCellValueChange}
+                    />
+                  );
+                } else if (column.dataType === DataType.Date) {
                   return (
                     <DateCell
-                          rowId={rowData.id}
-                          value={rowData[column.key] || null} 
-                          onChange={handleCellValueChange} 
-                          columnKey={column.key}
-                         />);
+                      rowId={rowData.id}
+                      value={rowData[column.key] || null}
+                      onChange={handleCellValueChange}
+                      columnKey={column.key}
+                    />
+                  );
                 } else if (column.isEditable) {
                   return (
                     <input
@@ -192,11 +208,17 @@ const KaTable = () => {
                 return null;
               },
             },
-            
+
             headCell: {
               content: (props) => {
                 if (props.column.key === "AddColumn") {
-                  return <AddNewColumn columns={columns} setColumns={setColumns} table={table} />;
+                  return (
+                    <AddNewColumn
+                      columns={columns}
+                      setColumns={setColumns}
+                      table={table}
+                    />
+                  );
                 }
                 return (
                   <ColumnPopover
@@ -212,10 +234,10 @@ const KaTable = () => {
               },
             },
             dataRow: {
-              elementAttributes: ({rowData}) => {
-                const rowKey = rowData.id;  
+              elementAttributes: ({ rowData }) => {
+                const rowKey = rowData.id;
                 return {
-                  onMouseEnter: () => {          
+                  onMouseEnter: () => {
                     setHoveredRow(rowKey);
                   },
                   onMouseLeave: () => {
@@ -226,7 +248,7 @@ const KaTable = () => {
             },
           }}
         />
-        
+
         <div style={{ marginTop: "20px" }}>
           <Button onClick={handleAddRow}>
             <FaPlus /> Add Row

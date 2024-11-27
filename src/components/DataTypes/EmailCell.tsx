@@ -9,7 +9,12 @@ interface EmailCellProps {
   onChange: (rowId: number, columnKey: string, value: string) => void;
 }
 
-const EmailCell: React.FC<EmailCellProps> = ({ value, rowId, columnKey, onChange }) => {
+const EmailCell: React.FC<EmailCellProps> = ({
+  value,
+  rowId,
+  columnKey,
+  onChange,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [email, setEmail] = useState(value);
   const [error, setError] = useState(false);
@@ -36,17 +41,26 @@ const EmailCell: React.FC<EmailCellProps> = ({ value, rowId, columnKey, onChange
   };
 
   const handleEditMode = () => {
-    setIsEditing(true); // Enter editing mode
+    setIsEditing(true);
   };
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", height:"16px" , paddingTop:"5px"}}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        width: "100%",
+        height: "16px",
+        paddingTop: "5px",
+      }}
+    >
       {isEditing ? (
         <TextField
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          onBlur={handleSave} // Save on blur
-          autoFocus // Automatically focus the field
+          onBlur={handleSave}
+          autoFocus
           size="small"
           variant="outlined"
           style={{ width: "100%" }}
@@ -63,16 +77,20 @@ const EmailCell: React.FC<EmailCellProps> = ({ value, rowId, columnKey, onChange
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
-              minHeight: "20px", 
-              borderBottom: email ? "none" : "none", 
-              color: email ? "inherit" : "#aaa", 
+              minHeight: "20px",
+              borderBottom: email ? "none" : "none",
+              color: email ? "inherit" : "#aaa",
             }}
           >
             {email || " "}
           </span>
           {email && (
             <Tooltip title="Send Email">
-              <IconButton size="small" onClick={handleRedirect} style={{padding:"0px"}}>
+              <IconButton
+                size="small"
+                onClick={handleRedirect}
+                style={{ padding: "0px" }}
+              >
                 <EmailIcon />
               </IconButton>
             </Tooltip>

@@ -11,10 +11,11 @@ interface AddNewColumnProps {
 }
 
 const dataTypeMap: Record<string, any> = {
-  Email: DataType.Email,
   Date: DataType.Date,
   Number: DataType.Number,
   String: DataType.String,
+  Email: "Email",
+  Phone: "Phone",
   // You can easily add more types here in the future
 };
 
