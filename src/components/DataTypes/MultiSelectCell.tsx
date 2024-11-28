@@ -58,9 +58,7 @@ const MultiSelectCell: React.FC<MultiSelectCellProps> = ({
           display: "flex",
           flexWrap: "wrap",
           gap: "4px",
-          padding: "8px",
           minHeight: "20px",
-          
           borderRadius: "8px",
           width:"100%"
         }}

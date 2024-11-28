@@ -11,6 +11,7 @@ import DateCell from "./DataTypes/DateCell";
 import EmailCell from "./DataTypes/EmailCell";
 import PhoneCell from "./DataTypes/PhoneCell";
 import MultiSelectCell from "./DataTypes/MultiSelectCell";
+import StatusCell from "./DataTypes/StatusCell";
 
 const KaTable = () => {
   const table = useTable();
@@ -180,6 +181,15 @@ const KaTable = () => {
                 } else if (column.dataType === "MultiSelect") {
                   return (
                     <MultiSelectCell
+                      value={rowData[column.key] || ""}
+                      rowId={rowData.id}
+                      columnKey={column.key}
+                      onChange={handleCellValueChange}
+                    />
+                  );
+                } else if (column.dataType === "Status") {
+                  return (
+                    <StatusCell
                       value={rowData[column.key] || ""}
                       rowId={rowData.id}
                       columnKey={column.key}

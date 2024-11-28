@@ -16,7 +16,8 @@ const dataTypeMap: Record<string, any> = {
   MultiSelect: "MultiSelect",
   Number: DataType.Number,
   Phone: "Phone",
-  String: DataType.String,
+  Status: "Status",
+  Text: DataType.String,
   // You can easily add more types here in the future
 };
 
