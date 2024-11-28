@@ -113,11 +113,13 @@ const ColumnPopover: React.FC<ColumnPopoverProps> = ({
       <button
         aria-describedby={id}
         onClick={handleOpen}
+        className="column-name"
         style={{
           background: "transparent",
           border: "none",
           cursor: "pointer",
           padding: "0",
+         
         }}
       >
         {currentTitle}

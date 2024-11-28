@@ -13,6 +13,8 @@ import PhoneCell from "./DataTypes/PhoneCell";
 import MultiSelectCell from "./DataTypes/MultiSelectCell";
 import StatusCell from "./DataTypes/StatusCell";
 import SelectCell from "./DataTypes/SelectCell";
+import { IconMapColumn } from "../icons/IconsMap";
+
 
 const KaTable = () => {
   const table = useTable();
@@ -250,7 +252,10 @@ const KaTable = () => {
               },
             },
             headCell: {
+              
               content: (props) => {
+                const columnIcon = IconMapColumn[props.column.dataType || ""];
+
                 if (props.column.key === "AddColumn") {
                   return (
                     <AddNewColumn
@@ -261,16 +266,24 @@ const KaTable = () => {
                   );
                 }
                 return (
-                  <ColumnPopover
-                    columnKey={props.column.key}
-                    currentTitle={props.column.title || ""}
-                    columns={columns}
-                    dataArray={dataArray}
-                    setColumns={setColumns}
-                    setDataArray={setDataArray}
-                    setTableKey={setTableKey}
-                  />
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    {columnIcon && (
+                      <span style={{ marginRight: "8px", display: "flex", alignItems: "center" }}>
+                        {columnIcon}
+                      </span>
+                    )}
+                    <ColumnPopover
+                      columnKey={props.column.key}
+                      currentTitle={props.column.title || ""}
+                      columns={columns}
+                      dataArray={dataArray}
+                      setColumns={setColumns}
+                      setDataArray={setDataArray}
+                      setTableKey={setTableKey}
+                    />
+                  </div>
                 );
+                
               },
             },
             dataRow: {

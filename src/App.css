@@ -70,13 +70,28 @@ body {
 .date-picker{
   border: none;
 }
+.column-name {
+ font-weight: 600;
+  color: #A0AEC0 !important;
+}
 
 
 /* [data-theme="dark"] */
 
+
+[data-theme="dark"] .date-picker{
+  border: none;
+  background-color: #191919;
+}
+
+
 [data-theme="dark"] .ka-thead-cell-resize {
   left: 7px !important;
   background-color: #191919 !important;
+}
+[data-theme="dark"] .column-name {
+  font-weight: 600;
+  color: #A0AEC0 !important;
 }
 
 [data-theme="dark"] .ka-cell {

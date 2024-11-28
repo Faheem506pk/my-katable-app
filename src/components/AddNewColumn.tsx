@@ -1,8 +1,11 @@
+// AddNewColumn.tsx
+
 import { Button, Popover, MenuItem, MenuList } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { Column } from "ka-table/models";
 import { DataType } from "ka-table/enums";
 import React, { useState } from "react";
+import { IconMap } from "../icons/IconsMap";  // Import the IconMap
 
 interface AddNewColumnProps {
   columns: Column[];
@@ -93,7 +96,7 @@ export default function AddNewColumn({
               key={dataType}
               onClick={() => handleSelectDataType(dataType)}
             >
-              {dataType}
+              {IconMap[dataType] || IconMap.default} {dataType}
             </MenuItem>
           ))}
         </MenuList>
