@@ -64,9 +64,21 @@ export default function AddNewColumn({
 
   return (
     <div>
-      <Button onClick={handleClick}>
-        <FaPlus />
-      </Button>
+    <button
+  onClick={handleClick}
+  style={{
+    marginTop: "8px",
+    textAlign: "left",
+    border: "none",
+    background: "transparent",
+    color: "gray",
+    height: "15px", // Adjust the button height
+    width: "15px",  // Adjust the button width
+  }}
+>
+  <FaPlus style={{ fontSize: "14px" }} /> {/* Optional: Adjust the font size of the icon */}
+</button>
+
 
       <Popover
         open={Boolean(anchorEl)}
