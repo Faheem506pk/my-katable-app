@@ -16,25 +16,29 @@ import SelectCell from "./DataTypes/SelectCell";
 
 const KaTable = () => {
   const table = useTable();
-  const [tableKey, setTableKey] = useState(0);
+  const [tableKey, setTableKey] = useState(0); // Used to force re-render
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
-  const [selectOptions, setSelectOptions] = useState<string[]>(() => {
-    const savedOptions = localStorage.getItem("selectOptions");
-    return savedOptions ? JSON.parse(savedOptions) : [];
-  });
-  const [multiselectOptions, setMultiSelectOptions] = useState<string[]>(() => {
-    const savedOptions = localStorage.getItem("selectOptions");
-    return savedOptions ? JSON.parse(savedOptions) : [];
-  });
-  
-  const [dataArray, setDataArray] = useState(
-    JSON.parse(localStorage.getItem("tableData") || "[]") || []
+
+  // Persistent state for select and multiselect options
+  const [selectOptions, setSelectOptions] = useState<string[]>(() =>
+    JSON.parse(localStorage.getItem("selectOptions") || "[]")
   );
+  const [multiselectOptions, setMultiSelectOptions] = useState<string[]>(() =>
+    JSON.parse(localStorage.getItem("selectOptions") || "[]")
+  );
+
+  // Persistent state for table data
+  const [dataArray, setDataArray] = useState(
+    () => JSON.parse(localStorage.getItem("tableData") || "[]") || []
+  );
+
+  // Persistent state for table columns
   const [columns, setColumns] = useState<Column[]>(() => {
     const savedColumns = JSON.parse(
       localStorage.getItem("tableColumns") || "[]"
     );
 
+    // Default column setup if no columns exist
     if (!savedColumns || savedColumns.length === 0) {
       return [
         {
@@ -73,43 +77,39 @@ const KaTable = () => {
         },
       ];
     }
-    return savedColumns.map((col: any, index: any) => ({
+    return savedColumns.map((col: any, index: number) => ({
       ...col,
       id: index,
     }));
   });
+
+  // Add a new row
   const handleAddRow = () => {
-    const maxId = Math.max(...dataArray.map((row: { id: any }) => row.id), 0);
-    const newRow = {
-      id: maxId + 1,
-      Name: "",
-      Salary: null,
-      DateOfBirth: null,
-    };
-    setDataArray([...dataArray, newRow]);
+    const maxId = Math.max(...dataArray.map((row: { id: any; }) => row.id), 0);
+    setDataArray([...dataArray, { id: maxId + 1, Name: "", Salary: null }]);
   };
 
+  // Handle cell value changes
   const handleCellValueChange = (
-    rowKey: any,
+    rowKey: number,
     columnKey: string,
     value: string
   ) => {
-    const updatedData = dataArray.map((row: { id: any }) =>
+    const updatedData = dataArray.map((row: { id: number; }) =>
       row.id === rowKey ? { ...row, [columnKey]: value } : row
     );
     setDataArray(updatedData);
   };
 
-  const handleDeleteRow = (rowData: any) => {
-    const updatedDataArray = dataArray.filter(
-      (row: { id: any }) => row.id !== rowData
-    );
+  // Delete a row
+  const handleDeleteRow = (rowId: number) => {
+    const updatedDataArray = dataArray.filter((row: { id: number; }) => row.id !== rowId);
     setDataArray(updatedDataArray);
     localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
     setTableKey((prevKey) => prevKey + 1);
   };
 
-
+  // Persist columns and data changes
   useEffect(() => {
     const columnsWithAddColumn = columns.filter(
       (col) => col.key !== "AddColumn"
@@ -120,141 +120,135 @@ const KaTable = () => {
       style: { minWidth: 110 },
       isEditable: false,
     });
+
     localStorage.setItem("tableColumns", JSON.stringify(columnsWithAddColumn));
     localStorage.setItem("tableData", JSON.stringify(dataArray));
   }, [columns, dataArray]);
 
+  // Populate with empty rows if no data exists
   useEffect(() => {
     if (dataArray.length === 0) {
       const emptyRows = Array(5)
         .fill(null)
-        .map((_, index) => ({
-          id: index,
-          Name: "",
-          Salary: null,
-          DateOfBirth: null,
-        }));
+        .map((_, index) => ({ id: index, Name: "", Salary: null }));
       setDataArray(emptyRows);
     }
   }, [dataArray]);
 
-
-
   return (
     <div className="main">
       <div
-        style={{ overflowX: "auto", marginLeft: "auto", marginRight: "auto" }}
         className="table-container"
+        style={{ overflowY: "auto", margin: "0 auto" }}
       >
         <Table
           key={tableKey}
           table={table}
           columns={columns}
           data={dataArray}
-          rowKeyField={"id"}
+          rowKeyField="id"
           editingMode={EditingMode.Cell}
-          columnReordering={true}
-          rowReordering={true}
-          columnResizing={true}
+          columnReordering
+          rowReordering
+          columnResizing
           childComponents={{
             cell: {
-              content: (props) => {
-                const { column, rowData } = props;
-
+              content: ({ column, rowData }) => {
                 if (column.key === "action") {
                   return (
                     <ActionButton
-                      rowData={props.rowData}
-                      rowId={props.rowData.id}
+                      rowData={rowData}
+                      rowId={rowData.id}
                       hoveredRow={hoveredRow}
                       handleDeleteRow={handleDeleteRow}
                     />
                   );
                 }
 
-                if (column.dataType === "Email") {
-                  return (
-                    <EmailCell
-                      value={rowData[column.key] || ""}
-                      rowId={rowData.id}
-                      columnKey={column.key}
-                      onChange={handleCellValueChange}
-                    />
-                  );
-                } else if (column.dataType === "Phone") {
-                  return (
-                    <PhoneCell
-                      value={rowData[column.key] || ""}
-                      rowId={rowData.id}
-                      columnKey={column.key}
-                      onChange={handleCellValueChange}
-                    />
-                  );
-                } else if (column.dataType === "MultiSelect") {
-                  return (
-                    <MultiSelectCell
-                      value={rowData[column.key] || ""}
-                      rowId={rowData.id}
-                      columnKey={column.key}
-                      onChange={handleCellValueChange}
-                      multiselectOptions={multiselectOptions}
-                      setMultiSelectOptions={setMultiSelectOptions}
-                    />
-                  );
-                } else if (column.dataType === "Select") {
-                  return (
-                    <SelectCell
-                      key={rowData.id}
-                      value={rowData[column.key] || ""}
-                      rowId={rowData.id}
-                      columnKey={column.key}
-                      onChange={handleCellValueChange}
-                      selectOptions={selectOptions}
-                      setSelectOptions={setSelectOptions}
-                    />
-                  );
-                } else if (column.dataType === "Status") {
-                  return (
-                    <StatusCell
-                      value={rowData[column.key] || ""}
-                      rowId={rowData.id}
-                      columnKey={column.key}
-                      onChange={handleCellValueChange}
-                    />
-                  );
-                } else if (column.dataType === DataType.Date) {
-                  return (
-                    <DateCell
-                      rowId={rowData.id}
-                      value={rowData[column.key] || null}
-                      onChange={handleCellValueChange}
-                      columnKey={column.key}
-                    />
-                  );
-                } else if (column.isEditable) {
-                  return (
-                    <input
-                      type="text"
-                      value={rowData[column.key] || ""}
-                      onChange={(e) =>
-                        handleCellValueChange(
-                          rowData.id,
-                          column.key,
-                          e.target.value
-                        )
-                      }
-                      style={{
-                        width: "100%",
-                        border: "none",
-                        background: "transparent",
-                      }}
-                    />
-                  );
+                switch (column.dataType) {
+                  case "Email":
+                    return (
+                      <EmailCell
+                        value={rowData[column.key] || ""}
+                        rowId={rowData.id}
+                        columnKey={column.key}
+                        onChange={handleCellValueChange}
+                      />
+                    );
+                  case "Phone":
+                    return (
+                      <PhoneCell
+                        value={rowData[column.key] || ""}
+                        rowId={rowData.id}
+                        columnKey={column.key}
+                        onChange={handleCellValueChange}
+                      />
+                    );
+                  case "MultiSelect":
+                    return (
+                      <MultiSelectCell
+                        value={rowData[column.key] || ""}
+                        rowId={rowData.id}
+                        columnKey={column.key}
+                        onChange={handleCellValueChange}
+                        multiselectOptions={multiselectOptions}
+                        setMultiSelectOptions={setMultiSelectOptions}
+                      />
+                    );
+                  case "Select":
+                    return (
+                      <SelectCell
+                        value={rowData[column.key] || ""}
+                        rowId={rowData.id}
+                        columnKey={column.key}
+                        onChange={handleCellValueChange}
+                        selectOptions={selectOptions}
+                        setSelectOptions={setSelectOptions}
+                      />
+                    );
+                  case "Status":
+                    return (
+                      <StatusCell
+                        value={rowData[column.key] || ""}
+                        rowId={rowData.id}
+                        columnKey={column.key}
+                        onChange={handleCellValueChange}
+                      />
+                    );
+                  case DataType.Date:
+                    return (
+                      <DateCell
+                        value={rowData[column.key] || null}
+                        rowId={rowData.id}
+                        columnKey={column.key}
+                        onChange={handleCellValueChange}
+                      />
+                    );
+                  default:
+                    if (column.isEditable) {
+                      return (
+                        <input
+                          type="text"
+                          value={rowData[column.key] || ""}
+                          onChange={(e) =>
+                            handleCellValueChange(
+                              rowData.id,
+                              column.key,
+                              e.target.value
+                            )
+                          }
+                          style={{
+                            width: "100%",
+                            border: "none",
+                            background: "transparent",
+                          }}
+                        />
+                      );
+                    }
+                    return null;
                 }
-                return null;
               },
             },
-
             headCell: {
               content: (props) => {
                 if (props.column.key === "AddColumn") {
@@ -280,24 +274,17 @@ const KaTable = () => {
               },
             },
             dataRow: {
-              elementAttributes: ({ rowData }) => {
-                const rowKey = rowData.id;
-                return {
-                  onMouseEnter: () => {
-                    setHoveredRow(rowKey);
-                  },
-                  onMouseLeave: () => {
-                    setHoveredRow(null);
-                  },
-                };
-              },
+              elementAttributes: ({ rowData }) => ({
+                onMouseEnter: () => setHoveredRow(rowData.id),
+                onMouseLeave: () => setHoveredRow(null),
+              }),
             },
           }}
         />
-
-        <div style={{ marginTop: "20px" }}>
-          <Button onClick={handleAddRow}>
-            <FaPlus /> Add Row
+        <div style={{ marginTop: "20px", textAlign: "center" }}>
+          <Button variant="contained" color="primary" onClick={handleAddRow}>
+            <FaPlus style={{ marginRight: "5px" }} />
+            Add Row
           </Button>
         </div>
       </div>

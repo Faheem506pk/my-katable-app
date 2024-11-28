@@ -58,7 +58,7 @@ const StatusCell: React.FC<StatusPopoverProps> = ({
             backgroundColor: currentStatus === "Active" ? "#d4edda" : "#f8d7da",
             color: currentStatus === "Active" ? "#155724" : "#721c24",
             borderRadius: "12px",
-            padding: "4px 8px",
+            padding: "4px 5px",
             display: "flex",
             alignItems: "center",
           }}

@@ -34,7 +34,7 @@ body {
 }
 
 .ka-cell {
-  padding: 7px !important;
+  padding: 4px !important;
   border-right: 1px solid #e2e8f0 !important;
   border-top: 1px solid #e2e8f0 !important;
   border-bottom: none !important;
@@ -80,7 +80,7 @@ body {
 }
 
 [data-theme="dark"] .ka-cell {
-  padding: 7px !important;
+  padding: 4px !important;
   border-right: 1px solid #2f2f2f !important;
   border-top: 1px solid #2f2f2f !important;
   border-bottom: none !important;
