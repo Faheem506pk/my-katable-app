@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Popover from "@mui/material/Popover";
 import TextField from "@mui/material/TextField";
 import { FaArrowDown, FaArrowUp, FaTrash } from "react-icons/fa";
@@ -8,6 +8,10 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
 import Button from "@mui/material/Button";
 import { Column } from "ka-table/models";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import { dataTypeMap } from "../utils/dataTypeMap"; 
+import { DataType } from "ka-table/enums";
 
 interface ColumnPopoverProps {
   columnKey: string;
@@ -18,7 +22,6 @@ interface ColumnPopoverProps {
   setDataArray: React.Dispatch<React.SetStateAction<any[]>>;
   setTableKey: React.Dispatch<React.SetStateAction<number>>;
 }
-
 
 const ColumnPopover: React.FC<ColumnPopoverProps> = ({
   columnKey,
@@ -31,7 +34,21 @@ const ColumnPopover: React.FC<ColumnPopoverProps> = ({
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [newTitle, setNewTitle] = useState(currentTitle);
+
+  // Initialize newDataType from the current column's dataType
+  const currentDataType = columns.find(col => col.key === columnKey)?.dataType;
+  const [newDataType, setNewDataType] = useState<DataType | string>(currentDataType || DataType.Number); // Default to 'Text' if undefined
+  
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [isSelectOpen, setIsSelectOpen] = useState(false);  // Track if Select is open
+
+  useEffect(() => {
+    // Update the dataType if the current column's dataType changes
+    const currentDataType = columns.find(col => col.key === columnKey)?.dataType;
+    if (currentDataType) {
+      setNewDataType(currentDataType);
+    }
+  }, [columns, columnKey]);
 
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -40,6 +57,9 @@ const ColumnPopover: React.FC<ColumnPopoverProps> = ({
   const handleClose = () => {
     if (newTitle !== currentTitle) {
       handleRenameColumn(columnKey, newTitle);
+    }
+    if (newDataType !== columns.find(col => col.key === columnKey)?.dataType) {
+      handleChangeDataType(columnKey, newDataType as DataType);
     }
     setAnchorEl(null);
   };
@@ -58,7 +78,6 @@ const ColumnPopover: React.FC<ColumnPopoverProps> = ({
   };
 
   const handleRenameColumn = (key: string, newTitle: string) => {
-    // Check if the column exists in localStorage before renaming
     const savedColumns = JSON.parse(localStorage.getItem("tableColumns") || "[]");
     const columnToRename = savedColumns.find((col: any) => col.key === key);
 
@@ -73,6 +92,28 @@ const ColumnPopover: React.FC<ColumnPopoverProps> = ({
       console.error(`Column with key ${key} not found in local storage.`);
     }
   };
+
+  const handleChangeDataType = (key: string, newDataType: DataType) => {
+    console.log("Before update:", columns);  // Log columns before change
+    
+    // Update columns
+    const updatedColumns = columns.map((col) =>
+      col.key === key ? { ...col, dataType: newDataType } : col
+    );
+    
+    console.log("Updated columns:", updatedColumns); // Log the updated columns
+    
+    // Update localStorage
+    localStorage.setItem("tableColumns", JSON.stringify(updatedColumns));
+  
+    // Update the state with the updated columns
+    setColumns(updatedColumns);
+  
+    // Force a re-render
+    setTableKey((prevKey) => prevKey + 1); // Optionally trigger re-render if needed
+    localStorage.setItem("tableColumns", JSON.stringify(updatedColumns));
+  };
+  
   
 
   const handleDeleteColumn = (columnKey: string) => {
@@ -108,6 +149,15 @@ const ColumnPopover: React.FC<ColumnPopoverProps> = ({
   const open = Boolean(anchorEl);
   const id = open ? "rename-column-popover" : undefined;
 
+  const handleSelectOpen = () => {
+    setIsSelectOpen(true);
+  };
+
+  const handleSelectClose = () => {
+    setIsSelectOpen(false);
+    handleClose();  // Only close when select is closed
+  };
+
   return (
     <div>
       <button
@@ -119,7 +169,6 @@ const ColumnPopover: React.FC<ColumnPopoverProps> = ({
           border: "none",
           cursor: "pointer",
           padding: "0",
-         
         }}
       >
         {currentTitle}
@@ -143,7 +192,6 @@ const ColumnPopover: React.FC<ColumnPopoverProps> = ({
             onChange={(e) => setNewTitle(e.target.value)}
             variant="outlined"
             size="small"
-            onBlur={handleClose}
             inputProps={{
               onKeyDown: (e) => {
                 if (e.key === "Enter") {
@@ -152,42 +200,39 @@ const ColumnPopover: React.FC<ColumnPopoverProps> = ({
               },
             }}
           />
+          <Select
+            value={newDataType}
+            onChange={(e) => setNewDataType(e.target.value)}
+            variant="outlined"
+            size="small"
+            style={{ marginTop: "10px" }}
+            open={isSelectOpen}
+            onOpen={handleSelectOpen}
+            onClose={handleSelectClose}
+          >
+            {Object.keys(dataTypeMap).map((key) => (
+              <MenuItem key={key} value={dataTypeMap[key]}>
+                {key}
+              </MenuItem>
+            ))}
+          </Select>
           <div style={{ marginTop: "10px", display: "flex", flexDirection: "column", alignSelf: "self-start" }}>
             <Button onClick={() => handleSortColumn(columnKey, "asc")}> <FaArrowUp /> Sort Ascending</Button>
-            <Button onClick={() => handleSortColumn(columnKey, "desc")}><FaArrowDown /> Sort Descending</Button>
-            <Button
-              onClick={handleDeleteClick}
-              style={{
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                color: "red",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <FaTrash style={{ marginRight: "5px" }} />
-              Delete Column
-            </Button>
+            <Button onClick={() => handleSortColumn(columnKey, "desc")}> <FaArrowDown /> Sort Descending</Button>
+            <Button onClick={handleDeleteClick}> <FaTrash /> Delete Column</Button>
           </div>
         </div>
       </Popover>
-
-      {/* Confirmation Dialog */}
-      <Dialog
-        open={openDeleteDialog}
-        onClose={handleDeleteCancel}
-        aria-labelledby="delete-column-dialog"
-      >
-        <DialogTitle id="delete-column-dialog">Delete Column</DialogTitle>
+      <Dialog open={openDeleteDialog} onClose={handleDeleteCancel}>
+        <DialogTitle>Confirm Delete</DialogTitle>
         <DialogContent>
-          Are you sure you want to delete the column "{currentTitle}"?
+          Are you sure you want to delete this column?
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDeleteCancel} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleDeleteConfirm} color="secondary">
+          <Button onClick={handleDeleteConfirm} color="primary">
             Delete
           </Button>
         </DialogActions>

@@ -53,7 +53,7 @@ const KaTable = () => {
         {
           key: "Name",
           title: "Name",
-          dataType: DataType.String,
+          dataType: "string",
           style: { minWidth: 199 },
           isEditable: true,
         },
@@ -130,7 +130,7 @@ const KaTable = () => {
   // Populate with empty rows if no data exists
   useEffect(() => {
     if (dataArray.length === 0) {
-      const emptyRows = Array(5)
+      const emptyRows = Array(10)
         .fill(null)
         .map((_, index) => ({ id: index, Name: "", Salary: null }));
       setDataArray(emptyRows);
