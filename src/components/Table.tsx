@@ -13,7 +13,7 @@ import PhoneCell from "./DataTypes/PhoneCell";
 import MultiSelectCell from "./DataTypes/MultiSelectCell";
 import StatusCell from "./DataTypes/StatusCell";
 import SelectCell from "./DataTypes/SelectCell";
-import { IconMapColumn } from "../icons/IconsMap";
+import { IconMapColumn } from "../utils/icons/IconsMap";
 
 
 const KaTable = () => {

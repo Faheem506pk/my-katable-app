@@ -3,27 +3,14 @@
 import { Button, Popover, MenuItem, MenuList } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { Column } from "ka-table/models";
-import { DataType } from "ka-table/enums";
 import React, { useState } from "react";
-import { IconMap } from "../icons/IconsMap";  // Import the IconMap
-
+import { IconMap } from "../utils/icons/IconsMap";  
+import { dataTypeMap } from "../utils/dataTypeMap"; 
 interface AddNewColumnProps {
   columns: Column[];
   setColumns: React.Dispatch<React.SetStateAction<Column[]>>;
   table: any;
 }
-
-const dataTypeMap: Record<string, any> = {
-  Date: DataType.Date,
-  Email: "Email",
-  MultiSelect: "MultiSelect",
-  Number: DataType.Number,
-  Phone: "Phone",
-  Status: "Status",
-  Select: "Select",
-  Text: DataType.String,
-  // You can easily add more types here in the future
-};
 
 export default function AddNewColumn({
   columns,
