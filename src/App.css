@@ -34,6 +34,7 @@ body {
 }
 
 .ka-cell {
+  min-height: 32px !important;
   padding: 4px !important;
   border-right: 1px solid #e2e8f0 !important;
   border-top: 1px solid #e2e8f0 !important;
@@ -62,28 +63,42 @@ body {
 .ka-row .ka-cell:last-of-type {
   border-right: none !important;
 }
-.ka-row .ka-cell:First-of-type {
+.ka-row .ka-cell:first-of-type {
   border-top: none !important;
   border-right: none !important;
 }
 
-.date-picker{
+.date-picker {
   border: none;
 }
 .column-name {
- font-weight: 600;
-  color: #A0AEC0 !important;
+  font-weight: 600;
+  color: #a0aec0 !important;
 }
+
+
+.add-row {
+  display: flex; /* Enables Flexbox for vertical and horizontal alignment */
+  align-items: center; /* Vertically centers the content */
+  justify-content: flex-start; /* Keeps the button aligned to the left or adjust as needed */
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  background: 
+    linear-gradient(to right, transparent 167px, #e2e8f0 100px) top, 
+    linear-gradient(to right, transparent 167px, #e2e8f0 100px) bottom;
+  background-size: 100% 1px; /* Restrict the gradient to 1px height */
+  background-repeat: no-repeat;
+  height: 32px; /* Adjust this based on the desired height */
+}
+
 
 
 /* [data-theme="dark"] */
 
-
-[data-theme="dark"] .date-picker{
+[data-theme="dark"] .date-picker {
   border: none;
   background-color: #191919;
 }
-
 
 [data-theme="dark"] .ka-thead-cell-resize {
   left: 7px !important;
@@ -91,7 +106,21 @@ body {
 }
 [data-theme="dark"] .column-name {
   font-weight: 600;
-  color: #A0AEC0 !important;
+  color: #a0aec0 !important;
+}
+
+[data-theme="dark"] .add-row {
+  display: flex; /* Enables Flexbox for vertical and horizontal alignment */
+  align-items: center; /* Vertically centers the content */
+  justify-content: flex-start; /* Keeps the button aligned to the left or adjust as needed */
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  background: 
+    linear-gradient(to right, transparent 167px, #2f2f2f 100px) top, 
+    linear-gradient(to right, transparent 167px, #2f2f2f 100px) bottom;
+  background-size: 100% 1px; /* Restrict the gradient to 1px height */
+  background-repeat: no-repeat;
+  height: 32px; /* Adjust this based on the desired height */
 }
 
 [data-theme="dark"] .ka-cell {

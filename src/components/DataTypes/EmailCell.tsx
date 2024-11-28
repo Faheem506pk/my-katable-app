@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { IconButton, TextField, Tooltip } from "@mui/material";
 import { Email as EmailIcon } from "@mui/icons-material";
+import { toast } from "react-toastify"; // Import react-toastify
 
 interface EmailCellProps {
   value: string;
@@ -27,6 +28,7 @@ const EmailCell: React.FC<EmailCellProps> = ({
   const handleSave = () => {
     if (!validateEmail(email) && email.trim() !== "") {
       setError(true);
+      toast.error("Invalid email format"); // Show error message in toast
     } else {
       setError(false);
       setIsEditing(false);
@@ -49,23 +51,28 @@ const EmailCell: React.FC<EmailCellProps> = ({
       style={{
         display: "flex",
         alignItems: "center",
-        gap: "8px",
+        gap: "1px",
         width: "100%",
-        height: "16px",
+        height: "10px",
         paddingTop: "5px",
       }}
     >
       {isEditing ? (
         <TextField
+          id="fullWidth"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onBlur={handleSave}
           autoFocus
-          size="small"
-          variant="outlined"
+          variant="standard"
           style={{ width: "100%" }}
           error={error}
-          helperText={error ? "Invalid email format" : ""}
+          slotProps={{
+            input: {
+              disableUnderline: true, // Hide underline
+              style: { marginTop: "-5px" }, // Ensure proper sizing
+            },
+          }}
         />
       ) : (
         <>
@@ -87,11 +94,11 @@ const EmailCell: React.FC<EmailCellProps> = ({
           {email && (
             <Tooltip title="Send Email">
               <IconButton
-                size="small"
+                
                 onClick={handleRedirect}
-                style={{ padding: "0px" }}
+                style={{ padding: "0px" , paddingBottom:"2px"}}
               >
-                <EmailIcon />
+                <EmailIcon style={{height:"15px"}} />
               </IconButton>
             </Tooltip>
           )}

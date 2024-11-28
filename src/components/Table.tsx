@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Table, useTable } from "ka-table";
 import { DataType, EditingMode } from "ka-table/enums";
 import { Column } from "ka-table/models";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaTrash } from "react-icons/fa";
 import { Button } from "@mui/material";
 import ColumnPopover from "./ColumnPopover";
 import ActionButton from "./ActionButton";
@@ -14,7 +14,6 @@ import MultiSelectCell from "./DataTypes/MultiSelectCell";
 import StatusCell from "./DataTypes/StatusCell";
 import SelectCell from "./DataTypes/SelectCell";
 import { IconMapColumn } from "../utils/icons/IconsMap";
-
 
 const KaTable = () => {
   const table = useTable();
@@ -65,6 +64,13 @@ const KaTable = () => {
           isEditable: true,
         },
         {
+          key: "Date",
+          title: "Date",
+          dataType: DataType.Date,
+          style: { minWidth: 199 },
+          isEditable: true,
+        },
+        {
           key: "Email",
           title: "Email",
           dataType: "Email",
@@ -73,7 +79,7 @@ const KaTable = () => {
         },
         {
           key: "AddColumn",
-          style: { minWidth: 140 },
+          style: { minWidth: 20 },
           isEditable: false,
           isResizable: false,
         },
@@ -87,7 +93,7 @@ const KaTable = () => {
 
   // Add a new row
   const handleAddRow = () => {
-    const maxId = Math.max(...dataArray.map((row: { id: any; }) => row.id), 0);
+    const maxId = Math.max(...dataArray.map((row: { id: any }) => row.id), 0);
     setDataArray([...dataArray, { id: maxId + 1, Name: "", Salary: null }]);
   };
 
@@ -97,18 +103,44 @@ const KaTable = () => {
     columnKey: string,
     value: string
   ) => {
-    const updatedData = dataArray.map((row: { id: number; }) =>
+    const updatedData = dataArray.map((row: { id: number }) =>
       row.id === rowKey ? { ...row, [columnKey]: value } : row
     );
     setDataArray(updatedData);
   };
 
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+
   // Delete a row
-  const handleDeleteRow = (rowId: number) => {
-    const updatedDataArray = dataArray.filter((row: { id: number; }) => row.id !== rowId);
+  const handleDeleteRow = (rowIds: number[]) => {
+    // Filter out rows whose IDs are not in the selected IDs array
+    const updatedDataArray = dataArray.filter(
+      (row: { id: number }) => !rowIds.includes(row.id)
+    );
+
+    // Update state and localStorage
     setDataArray(updatedDataArray);
     localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
+
+    // Force re-render the table if needed
     setTableKey((prevKey) => prevKey + 1);
+  };
+
+  // Toggle row selection
+  const toggleSelection = (id: number) => {
+    setSelectedRows((prev) =>
+      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
+    );
+  };
+
+  // Delete selected rows
+  const handleBulkDelete = () => {
+    const updatedDataArray = dataArray.filter(
+      (row: { id: number }) => !selectedRows.includes(row.id)
+    );
+    setDataArray(updatedDataArray);
+    setSelectedRows([]);
+    localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
   };
 
   // Persist columns and data changes
@@ -162,7 +194,19 @@ const KaTable = () => {
                       rowData={rowData}
                       rowId={rowData.id}
                       hoveredRow={hoveredRow}
-                      handleDeleteRow={handleDeleteRow}
+                      isSelected={selectedRows.includes(rowData.id)}
+                      toggleSelection={toggleSelection}
+                      handleDeleteRow={(id) => {
+                        const updatedDataArray = dataArray.filter(
+                          (row: { id: number }) => row.id !== id
+                        );
+                        setDataArray(updatedDataArray);
+                        localStorage.setItem(
+                          "tableData",
+                          JSON.stringify(updatedDataArray)
+                        );
+                      }}
+                      selectedRows={selectedRows}
                     />
                   );
                 }
@@ -252,9 +296,29 @@ const KaTable = () => {
               },
             },
             headCell: {
-              
               content: (props) => {
                 const columnIcon = IconMapColumn[props.column.dataType || ""];
+
+                if (props.column.key === "action") {
+                  // Conditionally render the bulk delete button
+                  return (
+                    selectedRows.length > 0 && (
+                      <button
+                        onClick={handleBulkDelete}
+                        style={{
+                          display: "flex",
+                          border: "none",
+                          background: "transparent",
+                          color: "gray",
+                          justifyContent: "flex-end",
+                          marginLeft: "auto",
+                        }}
+                      >
+                        <FaTrash />
+                      </button>
+                    )
+                  );
+                }
 
                 if (props.column.key === "AddColumn") {
                   return (
@@ -265,10 +329,17 @@ const KaTable = () => {
                     />
                   );
                 }
+
                 return (
                   <div style={{ display: "flex", alignItems: "center" }}>
                     {columnIcon && (
-                      <span style={{ marginRight: "8px", display: "flex", alignItems: "center" }}>
+                      <span
+                        style={{
+                          marginRight: "8px",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
                         {columnIcon}
                       </span>
                     )}
@@ -283,7 +354,6 @@ const KaTable = () => {
                     />
                   </div>
                 );
-                
               },
             },
             dataRow: {
@@ -294,11 +364,20 @@ const KaTable = () => {
             },
           }}
         />
-        <div style={{ marginTop: "20px", textAlign: "center" }}>
-          <Button variant="contained" color="primary" onClick={handleAddRow}>
+        <div className="add-row">
+          <button
+            onClick={handleAddRow}
+            style={{
+              textAlign: "left",
+              marginLeft: "170px",
+              border: "none",
+              background: "transparent",
+              color: "gray",
+            }}
+          >
             <FaPlus style={{ marginRight: "5px" }} />
             Add Row
-          </Button>
+          </button>
         </div>
       </div>
     </div>

@@ -155,7 +155,6 @@ const ColumnPopover: React.FC<ColumnPopoverProps> = ({
 
   const handleSelectClose = () => {
     setIsSelectOpen(false);
-     // Only close when select is closed
   };
 
   return (
