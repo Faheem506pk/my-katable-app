@@ -3,7 +3,6 @@ import { Table, useTable } from "ka-table";
 import { DataType, EditingMode } from "ka-table/enums";
 import { Column } from "ka-table/models";
 import { FaPlus, FaTrash } from "react-icons/fa";
-import { Button } from "@mui/material";
 import ColumnPopover from "./ColumnPopover";
 import ActionButton from "./ActionButton";
 import AddNewColumn from "./AddNewColumn";
@@ -112,19 +111,19 @@ const KaTable = () => {
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
   // Delete a row
-  const handleDeleteRow = (rowIds: number[]) => {
-    // Filter out rows whose IDs are not in the selected IDs array
+  const handleDeleteRow = (id: number) => {
     const updatedDataArray = dataArray.filter(
-      (row: { id: number }) => !rowIds.includes(row.id)
+      (row: { id: number }) => row.id !== id
     );
-
-    // Update state and localStorage
     setDataArray(updatedDataArray);
-    localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
-
-    // Force re-render the table if needed
-    setTableKey((prevKey) => prevKey + 1);
+    localStorage.setItem(
+      "tableData",
+      JSON.stringify(updatedDataArray)
+    );
   };
+
+
+
 
   // Toggle row selection
   const toggleSelection = (id: number) => {
@@ -196,16 +195,7 @@ const KaTable = () => {
                       hoveredRow={hoveredRow}
                       isSelected={selectedRows.includes(rowData.id)}
                       toggleSelection={toggleSelection}
-                      handleDeleteRow={(id) => {
-                        const updatedDataArray = dataArray.filter(
-                          (row: { id: number }) => row.id !== id
-                        );
-                        setDataArray(updatedDataArray);
-                        localStorage.setItem(
-                          "tableData",
-                          JSON.stringify(updatedDataArray)
-                        );
-                      }}
+                      handleDeleteRow={handleDeleteRow}
                       selectedRows={selectedRows}
                     />
                   );

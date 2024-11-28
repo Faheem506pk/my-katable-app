@@ -1,6 +1,6 @@
 // AddNewColumn.tsx
 
-import { Button, Popover, MenuItem, MenuList } from "@mui/material";
+import { Popover, MenuItem, MenuList } from "@mui/material";
 import { FaPlus } from "react-icons/fa";
 import { Column } from "ka-table/models";
 import React, { useState } from "react";
