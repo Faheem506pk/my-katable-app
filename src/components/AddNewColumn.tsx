@@ -17,6 +17,7 @@ const dataTypeMap: Record<string, any> = {
   Number: DataType.Number,
   Phone: "Phone",
   Status: "Status",
+  Select: "Select",
   Text: DataType.String,
   // You can easily add more types here in the future
 };

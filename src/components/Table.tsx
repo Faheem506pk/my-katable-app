@@ -12,12 +12,21 @@ import EmailCell from "./DataTypes/EmailCell";
 import PhoneCell from "./DataTypes/PhoneCell";
 import MultiSelectCell from "./DataTypes/MultiSelectCell";
 import StatusCell from "./DataTypes/StatusCell";
+import SelectCell from "./DataTypes/SelectCell";
 
 const KaTable = () => {
   const table = useTable();
   const [tableKey, setTableKey] = useState(0);
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
-
+  const [selectOptions, setSelectOptions] = useState<string[]>(() => {
+    const savedOptions = localStorage.getItem("selectOptions");
+    return savedOptions ? JSON.parse(savedOptions) : [];
+  });
+  const [multiselectOptions, setMultiSelectOptions] = useState<string[]>(() => {
+    const savedOptions = localStorage.getItem("selectOptions");
+    return savedOptions ? JSON.parse(savedOptions) : [];
+  });
+  
   const [dataArray, setDataArray] = useState(
     JSON.parse(localStorage.getItem("tableData") || "[]") || []
   );
@@ -100,6 +109,7 @@ const KaTable = () => {
     setTableKey((prevKey) => prevKey + 1);
   };
 
+
   useEffect(() => {
     const columnsWithAddColumn = columns.filter(
       (col) => col.key !== "AddColumn"
@@ -127,6 +137,8 @@ const KaTable = () => {
       setDataArray(emptyRows);
     }
   }, [dataArray]);
+
+
 
   return (
     <div className="main">
@@ -185,6 +197,20 @@ const KaTable = () => {
                       rowId={rowData.id}
                       columnKey={column.key}
                       onChange={handleCellValueChange}
+                      multiselectOptions={multiselectOptions}
+                      setMultiSelectOptions={setMultiSelectOptions}
+                    />
+                  );
+                } else if (column.dataType === "Select") {
+                  return (
+                    <SelectCell
+                      key={rowData.id}
+                      value={rowData[column.key] || ""}
+                      rowId={rowData.id}
+                      columnKey={column.key}
+                      onChange={handleCellValueChange}
+                      selectOptions={selectOptions}
+                      setSelectOptions={setSelectOptions}
                     />
                   );
                 } else if (column.dataType === "Status") {
