@@ -14,7 +14,7 @@ body {
 }
 
 .tasknameHeading {
-  cursor: pointer;
+  cursor: pointer; 
   font-size: 40px;
   font-weight: bold;
   border: none;
@@ -23,7 +23,7 @@ body {
 }
 
 .ka-table {
-  width: 800px !important;
+  width: 600px !important;
   min-width: 600px !important;
 }
 
@@ -63,6 +63,7 @@ body {
   background-color: #ffffff !important;
 }
 
+
 .ka {
   border: none !important;
   background-color: transparent !important;
@@ -101,6 +102,7 @@ body {
   background-size: 100% 1px; /* Restrict the gradient to 1px height */
   background-repeat: no-repeat;
   height: 32px; /* Adjust this based on the desired height */
+  width: 100%;
 }
 
 

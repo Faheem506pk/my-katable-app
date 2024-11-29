@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Table, useTable } from "ka-table";
 import { DataType, EditingMode } from "ka-table/enums";
 import { Column } from "ka-table/models";
@@ -17,6 +17,8 @@ import { IconMapColumn } from "../utils/icons/IconsMap";
 const KaTable = () => {
   const table = useTable();
   const [tableKey, setTableKey] = useState(0); // Used to force re-render
+  const tableRef = useRef<HTMLDivElement>(null);
+  const [tableWidth, setTableWidth] = useState<number>(0);
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
 
   // Persistent state for select and multiselect options
@@ -164,10 +166,31 @@ const KaTable = () => {
     }
   }, [dataArray]);
 
+  useEffect(() => {
+    const updateTableWidth = () => {
+      if (tableRef.current) {
+        setTableWidth(tableRef.current.offsetWidth);
+      }
+    };
+  
+    // Initialize the width and add a resize event listener
+    updateTableWidth();
+    window.addEventListener("resize", updateTableWidth);
+  
+    return () => {
+      window.removeEventListener("resize", updateTableWidth);
+    };
+  }, [columns]); // Add `columns` as a dependency
+  
+
+  
+
+
   return (
     <div className="main">
       <div
         className="table-container"
+        ref={tableRef}
         style={{ overflowY: "auto", margin: "0 auto" }}
       >
         <Table
@@ -352,23 +375,30 @@ const KaTable = () => {
                 onMouseLeave: () => setHoveredRow(null),
               }),
             },
+            tableFoot: {
+              content: () => (
+                <div className="add-row"  style={{
+                  width: `${tableWidth}px` // Set width dynamically
+                }}>
+                  <button
+                    onClick={handleAddRow}
+                    style={{
+                      textAlign: "left",
+                      marginLeft: "67px",
+                      border: "none",
+                      background: "transparent",
+                      color: "gray",
+                    }}
+                  >
+                    <FaPlus style={{ marginRight: "5px" }} />
+                    Add Row
+                  </button>
+                </div>
+              ),
+            },
           }}
         />
-        <div className="add-row">
-          <button
-            onClick={handleAddRow}
-            style={{
-              textAlign: "left",
-              marginLeft: "67px",
-              border: "none",
-              background: "transparent",
-              color: "gray",
-            }}
-          >
-            <FaPlus style={{ marginRight: "5px" }} />
-            Add Row
-          </button>
-        </div>
+        
       </div>
     </div>
   );
