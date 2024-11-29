@@ -40,7 +40,8 @@ export default function AddNewColumn({
       key: `${dataType}-${columns.length + 1}`, // Set key based on the selected data type
       title: `${dataType}-${columns.length + 1}`, // Set title based on the selected data type
       dataType: dataTypeMap[dataType], // Use the map to get the correct value
-      style: { minWidth: 199 },
+      colGroup: { style: { minWidth: 100 } },
+      width: 199,
       isEditable: true,
     };
 
@@ -72,11 +73,10 @@ export default function AddNewColumn({
     border: "none",
     background: "transparent",
     color: "gray",
-    height: "15px", // Adjust the button height
-    width: "15px",  // Adjust the button width
+
   }}
 >
-  <FaPlus style={{ fontSize: "14px" }} /> {/* Optional: Adjust the font size of the icon */}
+  <FaPlus style={{ fontSize: "14px" }} /> 
 </button>
 
 

@@ -43,7 +43,7 @@ const KaTable = () => {
       return [
         {
           key: "action",
-          width: 30,
+          width: 67,
           isResizable: false,
           isEditable: false,
           title: "",
@@ -52,36 +52,36 @@ const KaTable = () => {
           key: "Name",
           title: "Name",
           dataType: "string",
-          style: { minWidth: 199 },
-          isEditable: true,
-        },
-        {
-          key: "Salary",
-          title: "Salary",
-          dataType: DataType.Number,
-          style: { minWidth: 199 },
-          isEditable: true,
-        },
-        {
-          key: "Date",
-          title: "Date",
-          dataType: DataType.Date,
-          style: { minWidth: 199 },
+          colGroup: { style: { minWidth: 100 } },
+          width: 199,
           isEditable: true,
         },
         {
           key: "Email",
           title: "Email",
           dataType: "Email",
-          style: { minWidth: 199 },
+          colGroup: { style: { minWidth: 100 } },
+          width: 199,
+          isEditable: true,
+        },
+        {
+          key: "Date",
+          title: "Date",
+          dataType: DataType.Date,
+          colGroup: { style: { minWidth: 100 } },
+          width: 199,
           isEditable: true,
         },
         {
           key: "AddColumn",
-          style: { minWidth: 20 },
+          title: "AddColumn",
+          style: { minWidth: 180},
+          width: 180,
+          dataType: "AddColumn",
           isEditable: false,
-          isResizable: false,
+          isResizable: true,
         },
+        
       ];
     }
     return savedColumns.map((col: any, index: number) => ({
@@ -122,9 +122,6 @@ const KaTable = () => {
     );
   };
 
-
-
-
   // Toggle row selection
   const toggleSelection = (id: number) => {
     setSelectedRows((prev) =>
@@ -150,7 +147,6 @@ const KaTable = () => {
     columnsWithAddColumn.push({
       key: "AddColumn",
       title: "Add Column",
-      style: { minWidth: 110 },
       isEditable: false,
     });
 
@@ -288,6 +284,7 @@ const KaTable = () => {
             headCell: {
               content: (props) => {
                 const columnIcon = IconMapColumn[props.column.dataType || ""];
+             
 
                 if (props.column.key === "action") {
                   // Conditionally render the bulk delete button
@@ -309,16 +306,19 @@ const KaTable = () => {
                     )
                   );
                 }
-
+                
                 if (props.column.key === "AddColumn") {
                   return (
                     <AddNewColumn
                       columns={columns}
                       setColumns={setColumns}
                       table={table}
+                      
                     />
                   );
                 }
+
+              
 
                 return (
                   <div style={{ display: "flex", alignItems: "center" }}>
@@ -359,7 +359,7 @@ const KaTable = () => {
             onClick={handleAddRow}
             style={{
               textAlign: "left",
-              marginLeft: "170px",
+              marginLeft: "67px",
               border: "none",
               background: "transparent",
               color: "gray",

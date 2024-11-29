@@ -7,6 +7,12 @@ body {
   min-height: 44px !important;
 }
 
+.ka-thead-cell-content, .ka-cell-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .tasknameHeading {
   cursor: pointer;
   font-size: 40px;
@@ -17,7 +23,8 @@ body {
 }
 
 .ka-table {
-  width: auto !important;
+  width: 800px !important;
+  min-width: 600px !important;
 }
 
 .ka-thead-cell {
@@ -62,7 +69,12 @@ body {
 }
 .ka-row .ka-cell:last-of-type {
   border-right: none !important;
+  
 }
+.ka-thead-cell:last-of-type {
+  width: 170px !important;
+}
+
 .ka-row .ka-cell:first-of-type {
   border-top: none !important;
   border-right: none !important;
@@ -84,8 +96,8 @@ body {
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
   background: 
-    linear-gradient(to right, transparent 167px, #e2e8f0 100px) top, 
-    linear-gradient(to right, transparent 167px, #e2e8f0 100px) bottom;
+    linear-gradient(to right, transparent 40px, #e2e8f0 100px) top, 
+    linear-gradient(to right, transparent 40px, #e2e8f0 100px) bottom;
   background-size: 100% 1px; /* Restrict the gradient to 1px height */
   background-repeat: no-repeat;
   height: 32px; /* Adjust this based on the desired height */
@@ -116,8 +128,8 @@ body {
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
   background: 
-    linear-gradient(to right, transparent 167px, #2f2f2f 100px) top, 
-    linear-gradient(to right, transparent 167px, #2f2f2f 100px) bottom;
+    linear-gradient(to right, transparent 40px, #2f2f2f 100px) top, 
+    linear-gradient(to right, transparent 40px, #2f2f2f 100px) bottom;
   background-size: 100% 1px; /* Restrict the gradient to 1px height */
   background-repeat: no-repeat;
   height: 32px; /* Adjust this based on the desired height */

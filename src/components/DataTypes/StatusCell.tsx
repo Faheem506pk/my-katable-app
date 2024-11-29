@@ -50,6 +50,7 @@ const StatusCell: React.FC<StatusPopoverProps> = ({
           justifyContent: "space-between",
           borderRadius: "8px",
           cursor: "pointer",
+          fontSize: "12px",
         
         }}
       >
@@ -61,6 +62,7 @@ const StatusCell: React.FC<StatusPopoverProps> = ({
             padding: "4px 5px",
             display: "flex",
             alignItems: "center",
+            fontSize: "12px",
           }}
         >
           <GrStatusGood

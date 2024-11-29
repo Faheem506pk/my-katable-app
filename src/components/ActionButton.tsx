@@ -24,7 +24,7 @@ const ActionButton: React.FC<ActionButtonProps> = ({
   const isAnyRowNotSelected = selectedRows.length <= 0;
 
   return (
-    <div style={{ display: "flex", alignItems: "center", width: "60px", marginLeft: "100px" }}>
+    <div style={{ display: "flex", alignItems: "center", width: "60px" }}>
       {/* Show delete and drag icons only when hovered over this row */}
       {hoveredRow === rowId && (
         <div style={{ display: "flex", marginRight: "5px" }}>

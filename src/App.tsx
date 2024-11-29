@@ -4,7 +4,7 @@ import { lightTheme, darkTheme } from './theme';
 import './App.css';
 import KaTable from './components/Table';
 import Navbar from './components/Navbar';
-import 'ka-table/style.scss';
+import 'ka-table/style.css';
 
 import Header from './components/Header';
 

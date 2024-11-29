@@ -7,6 +7,7 @@ declare module "ka-table/enums" {
     Phone = "Phone",
     Select = "Select",
     MultiSelect = "MultiSelect",
-    Status = "Status"
+    Status = "Status",
+    AddColumn = "AddColumn"
   }
 }
