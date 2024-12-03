@@ -34,6 +34,10 @@ const KaTable = () => {
     () => JSON.parse(localStorage.getItem("tableData") || "[]") || []
   );
 
+  useEffect(() => {
+    console.log("Current Data Array:", dataArray);
+  }, [dataArray]);
+
   // Persistent state for table columns
   const [columns, setColumns] = useState<Column[]>(() => {
     const savedColumns = JSON.parse(
@@ -161,7 +165,7 @@ const KaTable = () => {
     if (dataArray.length === 0) {
       const emptyRows = Array(10)
         .fill(null)
-        .map((_, index) => ({ id: index, Name: "", Salary: null }));
+        .map((_, index) => ({ id: index, Name: "", Email: "", Date: "" }));
       setDataArray(emptyRows);
     }
   }, [dataArray]);
@@ -182,10 +186,6 @@ const KaTable = () => {
     };
   }, [columns]); // Add `columns` as a dependency
   
-
-  
-
-
   return (
     <div className="main">
       <div
@@ -204,6 +204,67 @@ const KaTable = () => {
           rowReordering
           columnResizing
           childComponents={{
+            headCell: {
+              content: (props) => {
+                const columnIcon = IconMapColumn[props.column.dataType || ""];
+                if (props.column.key === "action") {
+                  // Conditionally render the bulk delete button
+                  return (
+                    selectedRows.length > 0 && (
+                      <button
+                        onClick={handleBulkDelete}
+                        style={{
+                          display: "flex",
+                          border: "none",
+                          background: "transparent",
+                          color: "gray",
+                          justifyContent: "flex-end",
+                          marginLeft: "auto",
+                        }}
+                      >
+                        <FaTrash />
+                      </button>
+                    )
+                  );
+                }
+                
+                if (props.column.key === "AddColumn") {
+                  return (
+                    <AddNewColumn
+                      columns={columns}
+                      setColumns={setColumns}
+                      table={table}
+                      
+                    />
+                  );
+                }
+
+                return (
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    {columnIcon && (
+                      <span
+                        style={{
+                          marginRight: "8px",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        {columnIcon}
+                      </span>
+                    )}
+                    <ColumnPopover
+                      columnKey={props.column.key}
+                      currentTitle={props.column.title || ""}
+                      columns={columns}
+                      dataArray={dataArray}
+                      setColumns={setColumns}
+                      setDataArray={setDataArray}
+                      setTableKey={setTableKey}
+                    />
+                  </div>
+                );
+              },
+            },
             cell: {
               content: ({ column, rowData }) => {
                 if (column.key === "action") {
@@ -304,77 +365,14 @@ const KaTable = () => {
                 }
               },
             },
-            headCell: {
-              content: (props) => {
-                const columnIcon = IconMapColumn[props.column.dataType || ""];
-             
-
-                if (props.column.key === "action") {
-                  // Conditionally render the bulk delete button
-                  return (
-                    selectedRows.length > 0 && (
-                      <button
-                        onClick={handleBulkDelete}
-                        style={{
-                          display: "flex",
-                          border: "none",
-                          background: "transparent",
-                          color: "gray",
-                          justifyContent: "flex-end",
-                          marginLeft: "auto",
-                        }}
-                      >
-                        <FaTrash />
-                      </button>
-                    )
-                  );
-                }
-                
-                if (props.column.key === "AddColumn") {
-                  return (
-                    <AddNewColumn
-                      columns={columns}
-                      setColumns={setColumns}
-                      table={table}
-                      
-                    />
-                  );
-                }
-
-              
-
-                return (
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    {columnIcon && (
-                      <span
-                        style={{
-                          marginRight: "8px",
-                          display: "flex",
-                          alignItems: "center",
-                        }}
-                      >
-                        {columnIcon}
-                      </span>
-                    )}
-                    <ColumnPopover
-                      columnKey={props.column.key}
-                      currentTitle={props.column.title || ""}
-                      columns={columns}
-                      dataArray={dataArray}
-                      setColumns={setColumns}
-                      setDataArray={setDataArray}
-                      setTableKey={setTableKey}
-                    />
-                  </div>
-                );
-              },
-            },
+            
             dataRow: {
               elementAttributes: ({ rowData }) => ({
                 onMouseEnter: () => setHoveredRow(rowData.id),
                 onMouseLeave: () => setHoveredRow(null),
               }),
             },
+
             tableFoot: {
               content: () => (
                 <div className="add-row"  style={{
@@ -398,7 +396,6 @@ const KaTable = () => {
             },
           }}
         />
-        
       </div>
     </div>
   );
