@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { Table, useTable } from "ka-table";
-import { DataType, EditingMode } from "ka-table/enums";
+import { DataType, EditingMode, ActionType } from "ka-table/enums";
 import { Column } from "ka-table/models";
 import { FaPlus, FaTrash } from "react-icons/fa";
 import ColumnPopover from "./ColumnPopover";
@@ -14,12 +14,31 @@ import StatusCell from "./DataTypes/StatusCell";
 import SelectCell from "./DataTypes/SelectCell";
 import { IconMapColumn } from "../utils/icons/IconsMap";
 
+// Custom action types
+export const REORDER_COLUMNS = "ReorderColumns";
+export const REORDER_ROWS = "ReorderRows";
+
+// Custom action creators
+export const reorderColumns = (columnKey: string, targetColumnKey: string) => ({
+  type: REORDER_COLUMNS,
+  columnKey,
+  targetColumnKey
+});
+
+export const reorderRows = (rowKeyValue: any, targetRowKeyValue: any) => ({
+  type: REORDER_ROWS,
+  rowKeyValue,
+  targetRowKeyValue
+});
+
 const KaTable = () => {
   const table = useTable();
   const [tableKey, setTableKey] = useState(0); // Used to force re-render
   const tableRef = useRef<HTMLDivElement>(null);
   const [tableWidth, setTableWidth] = useState<number>(0);
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
+  const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
+  const [draggedRow, setDraggedRow] = useState<number | null>(null);
 
   // Persistent state for select and multiselect options
   const [selectOptions, setSelectOptions] = useState<string[]>(() =>
@@ -186,6 +205,82 @@ const KaTable = () => {
     };
   }, [columns]); // Add `columns` as a dependency
   
+  // Handle row drag start
+  const handleRowDragStart = (rowId: number) => {
+    setDraggedRow(rowId);
+    table.dispatch({
+      type: 'RowDragStart',
+      rowKeyValue: rowId
+    });
+  };
+
+  // Handle column drag start
+  const handleColumnDragStart = (columnKey: string) => {
+    setDraggedColumn(columnKey);
+    table.dispatch({
+      type: 'ColumnDragStart',
+      columnKey
+    });
+  };
+
+  // Handle reordering of columns
+  const handleReorderColumns = (columnKey: string, targetColumnKey: string) => {
+    console.log(`Reordering column ${columnKey} to position of ${targetColumnKey}`);
+    
+    // Find the indices of the columns
+    const columnIndex = columns.findIndex(col => col.key === columnKey);
+    const targetIndex = columns.findIndex(col => col.key === targetColumnKey);
+    
+    if (columnIndex !== -1 && targetIndex !== -1) {
+      // Create a new array with the reordered columns
+      const newColumns = [...columns];
+      const [movedColumn] = newColumns.splice(columnIndex, 1);
+      newColumns.splice(targetIndex, 0, movedColumn);
+      
+      // Update the columns state
+      setColumns(newColumns);
+      
+      // Force re-render
+      setTableKey(prev => prev + 1);
+    }
+  };
+
+  // Handle reordering of rows
+  const handleReorderRows = (rowKeyValue: number, targetRowKeyValue: number) => {
+    console.log(`Reordering row ${rowKeyValue} to position of ${targetRowKeyValue}`);
+    
+    // Find the indices of the rows
+    const rowIndex = dataArray.findIndex((row: { id: number }) => row.id === rowKeyValue);
+    const targetIndex = dataArray.findIndex((row: { id: number }) => row.id === targetRowKeyValue);
+    
+    if (rowIndex !== -1 && targetIndex !== -1) {
+      // Create a new array with the reordered rows
+      const newDataArray = [...dataArray];
+      const [movedRow] = newDataArray.splice(rowIndex, 1);
+      newDataArray.splice(targetIndex, 0, movedRow);
+      
+      // Update the dataArray state
+      setDataArray(newDataArray);
+      
+      // Force re-render to ensure UI updates
+      setTableKey(prev => prev + 1);
+    }
+  };
+
+  // Custom dispatch function to handle our custom actions
+  const customDispatch = (action: any) => {
+    switch (action.type) {
+      case REORDER_COLUMNS:
+        handleReorderColumns(action.columnKey, action.targetColumnKey);
+        break;
+      case REORDER_ROWS:
+        handleReorderRows(action.rowKeyValue, action.targetRowKeyValue);
+        break;
+      default:
+        table.dispatch(action);
+    }
+  };
+  
   return (
     <div className="main">
       <div
@@ -195,13 +290,11 @@ const KaTable = () => {
       >
         <Table
           key={tableKey}
-          table={table}
+          dispatch={customDispatch}
           columns={columns}
           data={dataArray}
           rowKeyField="id"
           editingMode={EditingMode.Cell}
-          columnReordering
-          rowReordering
           columnResizing
           childComponents={{
             headCell: {
@@ -234,13 +327,34 @@ const KaTable = () => {
                       columns={columns}
                       setColumns={setColumns}
                       table={table}
-                      
                     />
                   );
                 }
 
                 return (
-                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <div 
+                    style={{ 
+                      display: "flex", 
+                      alignItems: "center",
+                      cursor: 'grab',
+                      transition: 'all 0.3s ease'
+                    }}
+                    draggable={true}
+                    onDragStart={() => handleColumnDragStart(props.column.key)}
+                    onDragOver={(e) => {
+                      e.preventDefault(); // Allow drop
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      // Use our tracked dragged column
+                      if (draggedColumn && draggedColumn !== props.column.key) {
+                        // Dispatch reorder action
+                        customDispatch(reorderColumns(draggedColumn, props.column.key));
+                        // Reset dragged column
+                        setDraggedColumn(null);
+                      }
+                    }}
+                  >
                     {columnIcon && (
                       <span
                         style={{
@@ -264,6 +378,13 @@ const KaTable = () => {
                   </div>
                 );
               },
+              elementAttributes: (props) => ({
+                className: 'ka-thead-cell-content',
+                style: {
+                  cursor: 'grab', // Show grab cursor for drag and drop
+                  transition: 'all 0.3s ease', // Add smooth transition for animation
+                }
+              }),
             },
             cell: {
               content: ({ column, rowData }) => {
@@ -370,6 +491,25 @@ const KaTable = () => {
               elementAttributes: ({ rowData }) => ({
                 onMouseEnter: () => setHoveredRow(rowData.id),
                 onMouseLeave: () => setHoveredRow(null),
+                draggable: true,
+                onDragStart: () => handleRowDragStart(rowData.id),
+                onDragOver: (e) => {
+                  e.preventDefault(); // Allow drop
+                },
+                onDrop: (e) => {
+                  e.preventDefault();
+                  // Use our tracked dragged row
+                  if (draggedRow !== null && draggedRow !== rowData.id) {
+                    // Dispatch reorder action
+                    customDispatch(reorderRows(draggedRow, rowData.id));
+                    // Reset dragged row
+                    setDraggedRow(null);
+                  }
+                },
+                style: {
+                  cursor: 'grab', // Show grab cursor for drag and drop
+                  transition: 'all 0.3s ease', // Add smooth transition for animation
+                }
               }),
             },
 
