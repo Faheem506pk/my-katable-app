@@ -1,5 +1,6 @@
 import React from "react";
-import { MdDeleteOutline, MdDragIndicator } from "react-icons/md";
+import { FaTrash } from "react-icons/fa";
+import { MdDragIndicator } from "react-icons/md";
 
 interface ActionButtonProps {
   rowId: number;
@@ -28,11 +29,11 @@ const ActionButton: React.FC<ActionButtonProps> = ({
       {/* Show delete and drag icons only when hovered over this row */}
       {hoveredRow === rowId && (
         <div style={{ display: "flex", marginRight: "5px" }}>
-          <MdDeleteOutline
-            style={{ cursor: "pointer", marginRight: "5px" }}
+          <MdDragIndicator style={{ cursor: "move",  marginRight: "5px"  }} />
+          <FaTrash 
+            style={{ cursor: "pointer" ,color: "gray",}}
             onClick={() => handleDeleteRow(rowData.id)}
           />
-          <MdDragIndicator style={{ cursor: "move" }} />
         </div>
       )}
 
