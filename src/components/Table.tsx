@@ -22,13 +22,13 @@ export const REORDER_ROWS = "ReorderRows";
 export const reorderColumns = (columnKey: string, targetColumnKey: string) => ({
   type: REORDER_COLUMNS,
   columnKey,
-  targetColumnKey
+  targetColumnKey,
 });
 
 export const reorderRows = (rowKeyValue: any, targetRowKeyValue: any) => ({
   type: REORDER_ROWS,
   rowKeyValue,
-  targetRowKeyValue
+  targetRowKeyValue,
 });
 
 const KaTable = () => {
@@ -100,13 +100,12 @@ const KaTable = () => {
         {
           key: "AddColumn",
           title: "AddColumn",
-          style: { minWidth: 180},
+          style: { minWidth: 180 },
           width: 180,
           dataType: "AddColumn",
           isEditable: false,
           isResizable: true,
         },
-        
       ];
     }
     return savedColumns.map((col: any, index: number) => ({
@@ -141,10 +140,7 @@ const KaTable = () => {
       (row: { id: number }) => row.id !== id
     );
     setDataArray(updatedDataArray);
-    localStorage.setItem(
-      "tableData",
-      JSON.stringify(updatedDataArray)
-    );
+    localStorage.setItem("tableData", JSON.stringify(updatedDataArray));
   };
 
   // Toggle row selection
@@ -195,22 +191,22 @@ const KaTable = () => {
         setTableWidth(tableRef.current.offsetWidth);
       }
     };
-  
+
     // Initialize the width and add a resize event listener
     updateTableWidth();
     window.addEventListener("resize", updateTableWidth);
-  
+
     return () => {
       window.removeEventListener("resize", updateTableWidth);
     };
   }, [columns]); // Add `columns` as a dependency
-  
+
   // Handle row drag start
   const handleRowDragStart = (rowId: number) => {
     setDraggedRow(rowId);
     table.dispatch({
-      type: 'RowDragStart',
-      rowKeyValue: rowId
+      type: "RowDragStart",
+      rowKeyValue: rowId,
     });
   };
 
@@ -218,52 +214,63 @@ const KaTable = () => {
   const handleColumnDragStart = (columnKey: string) => {
     setDraggedColumn(columnKey);
     table.dispatch({
-      type: 'ColumnDragStart',
-      columnKey
+      type: "ColumnDragStart",
+      columnKey,
     });
   };
 
   // Handle reordering of columns
   const handleReorderColumns = (columnKey: string, targetColumnKey: string) => {
-    console.log(`Reordering column ${columnKey} to position of ${targetColumnKey}`);
-    
+    console.log(
+      `Reordering column ${columnKey} to position of ${targetColumnKey}`
+    );
+
     // Find the indices of the columns
-    const columnIndex = columns.findIndex(col => col.key === columnKey);
-    const targetIndex = columns.findIndex(col => col.key === targetColumnKey);
-    
+    const columnIndex = columns.findIndex((col) => col.key === columnKey);
+    const targetIndex = columns.findIndex((col) => col.key === targetColumnKey);
+
     if (columnIndex !== -1 && targetIndex !== -1) {
       // Create a new array with the reordered columns
       const newColumns = [...columns];
       const [movedColumn] = newColumns.splice(columnIndex, 1);
       newColumns.splice(targetIndex, 0, movedColumn);
-      
+
       // Update the columns state
       setColumns(newColumns);
-      
+
       // Force re-render
-      setTableKey(prev => prev + 1);
+      setTableKey((prev) => prev + 1);
     }
   };
 
   // Handle reordering of rows
-  const handleReorderRows = (rowKeyValue: number, targetRowKeyValue: number) => {
-    console.log(`Reordering row ${rowKeyValue} to position of ${targetRowKeyValue}`);
-    
+  const handleReorderRows = (
+    rowKeyValue: number,
+    targetRowKeyValue: number
+  ) => {
+    console.log(
+      `Reordering row ${rowKeyValue} to position of ${targetRowKeyValue}`
+    );
+
     // Find the indices of the rows
-    const rowIndex = dataArray.findIndex((row: { id: number }) => row.id === rowKeyValue);
-    const targetIndex = dataArray.findIndex((row: { id: number }) => row.id === targetRowKeyValue);
-    
+    const rowIndex = dataArray.findIndex(
+      (row: { id: number }) => row.id === rowKeyValue
+    );
+    const targetIndex = dataArray.findIndex(
+      (row: { id: number }) => row.id === targetRowKeyValue
+    );
+
     if (rowIndex !== -1 && targetIndex !== -1) {
       // Create a new array with the reordered rows
       const newDataArray = [...dataArray];
       const [movedRow] = newDataArray.splice(rowIndex, 1);
       newDataArray.splice(targetIndex, 0, movedRow);
-      
+
       // Update the dataArray state
       setDataArray(newDataArray);
-      
+
       // Force re-render to ensure UI updates
-      setTableKey(prev => prev + 1);
+      setTableKey((prev) => prev + 1);
     }
   };
 
@@ -280,7 +287,7 @@ const KaTable = () => {
         table.dispatch(action);
     }
   };
-  
+
   return (
     <div className="main">
       <div
@@ -301,26 +308,68 @@ const KaTable = () => {
               content: (props) => {
                 const columnIcon = IconMapColumn[props.column.dataType || ""];
                 if (props.column.key === "action") {
-                  // Conditionally render the bulk delete button
+                  // Render the select all checkbox and bulk delete button
                   return (
-                    selectedRows.length > 0 && (
-                      <button
-                        onClick={handleBulkDelete}
-                        style={{
-                          display: "flex",
-                          border: "none",
-                          background: "transparent",
-                          color: "gray",
-                          justifyContent: "flex-end",
-                          marginLeft: "auto",
-                        }}
-                      >
-                        <FaTrash />
-                      </button>
-                    )
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "right",
+                        // width: "60px",
+                      }}
+                    >
+                      {selectedRows.length > 0 && (
+                        <>
+                          <button
+                            onClick={handleBulkDelete}
+                            style={{
+                              display: "flex",
+                              border: "none",
+                              background: "transparent",
+                              color: "gray",
+                              marginLeft: "8px",
+                            }}
+                          >
+                            <FaTrash />
+                          </button>
+
+                          <input
+                            type="checkbox"
+                            checked={
+                              selectedRows.length > 0 &&
+                              selectedRows.length === dataArray.length
+                            }
+                            ref={(input) => {
+                              if (input) {
+                                input.indeterminate =
+                                  selectedRows.length > 0 &&
+                                  selectedRows.length < dataArray.length;
+                              }
+                            }}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                // Select all rows
+                                setSelectedRows(
+                                  dataArray.map((row: { id: number }) => row.id)
+                                );
+                              } else {
+                                // Deselect all rows
+                                setSelectedRows([]);
+                              }
+                            }}
+                            style={{ cursor: "pointer" ,display: "flex",
+                              border: "none",
+                              background: "transparent",
+                              color: "gray",
+                              marginLeft: "8px",}}
+                          
+                          />
+                        </>
+                      )}
+                    </div>
                   );
                 }
-                
+
                 if (props.column.key === "AddColumn") {
                   return (
                     <AddNewColumn
@@ -332,12 +381,12 @@ const KaTable = () => {
                 }
 
                 return (
-                  <div 
-                    style={{ 
-                      display: "flex", 
+                  <div
+                    style={{
+                      display: "flex",
                       alignItems: "center",
-                      cursor: 'grab',
-                      transition: 'all 0.3s ease'
+                      cursor: "grab",
+                      transition: "all 0.3s ease",
                     }}
                     draggable={true}
                     onDragStart={() => handleColumnDragStart(props.column.key)}
@@ -349,7 +398,9 @@ const KaTable = () => {
                       // Use our tracked dragged column
                       if (draggedColumn && draggedColumn !== props.column.key) {
                         // Dispatch reorder action
-                        customDispatch(reorderColumns(draggedColumn, props.column.key));
+                        customDispatch(
+                          reorderColumns(draggedColumn, props.column.key)
+                        );
                         // Reset dragged column
                         setDraggedColumn(null);
                       }
@@ -379,11 +430,11 @@ const KaTable = () => {
                 );
               },
               elementAttributes: (_props) => ({
-                className: 'ka-thead-cell-content',
+                className: "ka-thead-cell-content",
                 style: {
-                  cursor: 'grab', // Show grab cursor for drag and drop
-                  transition: 'all 0.3s ease', // Add smooth transition for animation
-                }
+                  cursor: "grab", // Show grab cursor for drag and drop
+                  transition: "all 0.3s ease", // Add smooth transition for animation
+                },
               }),
             },
             cell: {
@@ -486,7 +537,7 @@ const KaTable = () => {
                 }
               },
             },
-            
+
             dataRow: {
               elementAttributes: ({ rowData }) => ({
                 onMouseEnter: () => setHoveredRow(rowData.id),
@@ -507,17 +558,20 @@ const KaTable = () => {
                   }
                 },
                 style: {
-                  cursor: 'grab', // Show grab cursor for drag and drop
-                  transition: 'all 0.3s ease', // Add smooth transition for animation
-                }
+                  cursor: "grab", // Show grab cursor for drag and drop
+                  transition: "all 0.3s ease", // Add smooth transition for animation
+                },
               }),
             },
 
             tableFoot: {
               content: () => (
-                <div className="add-row"  style={{
-                  width: `${tableWidth}px` // Set width dynamically
-                }}>
+                <div
+                  className="add-row"
+                  style={{
+                    width: `${tableWidth}px`, // Set width dynamically
+                  }}
+                >
                   <button
                     onClick={handleAddRow}
                     style={{
