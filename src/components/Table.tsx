@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { Table, useTable } from "ka-table";
-import { DataType, EditingMode, ActionType } from "ka-table/enums";
+import { DataType, EditingMode } from "ka-table/enums";
 import { Column } from "ka-table/models";
 import { FaPlus, FaTrash } from "react-icons/fa";
 import ColumnPopover from "./ColumnPopover";
@@ -378,7 +378,7 @@ const KaTable = () => {
                   </div>
                 );
               },
-              elementAttributes: (props) => ({
+              elementAttributes: (_props) => ({
                 className: 'ka-thead-cell-content',
                 style: {
                   cursor: 'grab', // Show grab cursor for drag and drop
