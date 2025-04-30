@@ -11,7 +11,7 @@ interface DatePickerCellProps {
 
 const DateCell: React.FC<DatePickerCellProps> = ({ value, rowId, columnKey, onChange }) => {
     
-    const handleDateChange = (date: Date | null) => {
+  const handleDateChange = (date: Date | null) => {
     if (date) {
       onChange(rowId, columnKey, date.toISOString()); 
     } else {
@@ -19,9 +19,20 @@ const DateCell: React.FC<DatePickerCellProps> = ({ value, rowId, columnKey, onCh
     }
   };
 
+  // Helper function to check if a string is a valid date
+  const isValidDateString = (dateStr: string | null): boolean => {
+    if (!dateStr || dateStr === "") return false;
+    
+    const timestamp = Date.parse(dateStr);
+    return !isNaN(timestamp);
+  };
+
+  // Only create a Date object if the value is a valid date string
+  const selectedDate = isValidDateString(value) ? new Date(value as string) : null;
+
   return (
     <DatePicker
-      selected={value ? new Date(value) : undefined} 
+      selected={selectedDate}
       onChange={handleDateChange} 
       dateFormat="dd-MM-yyyy" 
       className="date-picker"
